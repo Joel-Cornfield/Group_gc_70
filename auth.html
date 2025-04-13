@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UWA GeoGuessr - Login/Signup</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="styles/auth.css">
+</head>
+<body>
+    <div class="container">
+        <div class="auth-container">
+            <div class="row g-0 auth-row">
+                <div class="col-lg-5 auth-col" id="sidebarCol">
+                    <div class="auth-sidebar" id="sidebar">
+                        <div class="sidebar-content">
+                            <div class="d-flex align-items-center mb-4">
+                                <div class="bg-white rounded-circle p-2 m-2">
+                                    <img src="images/uwa.webp" alt="UWA logo" class="logo d-flex align-items-center justify-content-center">
+                                </div>
+                                <h4 class="mb-0 text-uwa-gold">UWA GeoGuessr</h4>
+                            </div>
+                            <h2 class="fw-bold mb-4">Explore and discover the UWA campus</h2>
+                            <span class="badge-feature"><i class="fas fa-trophy me-2"></i> Compete with friends</span>
+                            <span class="badge-feature"><i class="fas fa-graduation-cap me-2"></i> Learn about UWA</span>
+                            
+                            <div class="mt-5">
+                                <div class="d-flex align-items-center mb-3">
+                                    <div class="feature-icon">
+                                        <i class="fas fa-street-view"></i>
+                                    </div>
+                                    <div>
+                                        <h5 class="mb-0">Find Campus Locations</h5>
+                                        <p class="mb-0 text-white-50">Find hidden spots and popular locations</p>
+                                    </div>
+                                </div>
+                                <div class="d-flex align-items-center mb-3">
+                                    <div class="feature-icon">
+                                        <i class="fas fa-medal"></i>
+                                    </div>
+                                    <div>
+                                        <h5 class="mb-0">Leaderboards</h5>
+                                        <p class="mb-0 text-white-50">Compete for the top spot</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-7 auth-col" id="formCol">
+                    <div class="auth-form" id="formContainer">
+                        <ul class="nav nav-tabs mb-4" id="myTab" role="tablist">
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link active" id="login-tab" data-bs-toggle="tab" data-bs-target="#login" type="button" role="tab" aria-controls="login" aria-selected="true">Login</button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="signup-tab" data-bs-toggle="tab" data-bs-target="#signup" type="button" role="tab" aria-controls="signup" aria-selected="false">Sign Up</button>
+                            </li>
+                        </ul>
+                        <div class="tab-content" id="myTabContent">
+                            <div class="tab-pane fade show active" id="login" role="tabpanel" aria-labelledby="login-tab">
+                                <h2 class="fw-bold mb-4">Welcome back!</h2>
+                                <p class="text-muted mb-4">Login to continue your UWA campus exploration journey.</p>
+                                
+                                <!-- Optional -->
+                                <div class="row g-3 mb-4">
+                                    <div class="col-md-6">
+                                        <div class="social-login">
+                                            <i class="fab fa-google me-2"></i> Login with Google
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="social-login">
+                                            <i class="fab fa-facebook-f me-2"></i> Login with Facebook
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="divider">
+                                    <span>or login with email</span>
+                                </div>
+                                
+                                <form class="form-padding-bottom">
+                                    <div class="form-floating mb-3">
+                                        <input type="email" class="form-control" id="floatingInput" placeholder="name@example.com">
+                                        <label for="floatingInput">Email address</label>
+                                    </div>
+                                    <div class="form-floating mb-3">
+                                        <input type="password" class="form-control" id="floatingPassword" placeholder="Password">
+                                        <label for="floatingPassword">Password</label>
+                                    </div>
+                                    <div class="d-flex justify-content-between mb-4">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" id="rememberMe">
+                                            <label class="form-check-label" for="rememberMe">
+                                                Remember me
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <button class="btn btn-uwa w-100 py-3 mb-3">Login</button>
+                                    <p class="text-center mb-0">Don't have an account? <a href="#" class="text-decoration-none fw-bold" id="showSignup">Sign up</a></p>
+                                </form>
+                            </div>
+                            <div class="tab-pane fade" id="signup" role="tabpanel" aria-labelledby="signup-tab">
+                                <h2 class="fw-bold mb-4">Create your account</h2>
+                                <p class="text-muted mb-4">Join the UWA GeoGuessr community and start exploring!</p>
+                                
+                                <!-- Optional -->
+                                <div class="row g-3 mb-4">
+                                    <div class="col-md-6">
+                                        <div class="social-login">
+                                            <i class="fab fa-google me-2"></i> Sign up with Google
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="social-login">
+                                            <i class="fab fa-facebook-f me-2"></i> Sign up with Facebook
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="divider">
+                                    <span>or sign up with email</span>
+                                </div>
+                                
+                                <form class="form-padding-bottom">
+                                    <div class="row g-3">
+                                        <div class="col-md-6">
+                                            <div class="form-floating mb-3">
+                                                <input type="text" class="form-control" id="firstName" placeholder="First Name">
+                                                <label for="firstName">First Name</label>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-floating mb-3">
+                                                <input type="text" class="form-control" id="lastName" placeholder="Last Name">
+                                                <label for="lastName">Last Name</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="form-floating mb-3">
+                                        <input type="text" class="form-control" id="username" placeholder="Username">
+                                        <label for="username">Username</label>
+                                    </div>
+                                    <div class="form-floating mb-3">
+                                        <input type="email" class="form-control" id="signupEmail" placeholder="name@example.com">
+                                        <label for="signupEmail">Email address</label>
+                                    </div>
+                                    <div class="form-floating mb-3">
+                                        <input type="password" class="form-control" id="signupPassword" placeholder="Password">
+                                        <label for="signupPassword">Password</label>
+                                    </div>
+                                    <div class="form-floating mb-3">
+                                        <input type="password" class="form-control" id="confirmPassword" placeholder="Confirm Password">
+                                        <label for="confirmPassword">Confirm Password</label>
+                                    </div>
+                                    <button class="btn btn-uwa w-100 py-3 mb-3">Create Account</button>
+                                    <p class="text-center mb-0">Already have an account? <a href="#" class="text-decoration-none fw-bold" id="showLogin">Login</a></p>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS Bundle with Popper -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js"></script>
+    <script src="auth.js"></script>
+</body>
+</html>

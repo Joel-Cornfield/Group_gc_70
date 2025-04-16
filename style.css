@@ -1,0 +1,58 @@
+body {
+    font-family: 'Segoe UI', sans-serif;
+}
+
+.bg-warning {
+    background-color: #FDB913 !important;
+}
+
+.btn-primary {
+    background-color: #00205B;
+    border-color: #00205B;
+}
+
+.btn-sm {
+    background-color: white;
+}
+
+.btn-primary:hover,
+.btn-dark:hover {
+    opacity: 0.9;
+}
+
+.text-primary {
+    color: #00205B !important;
+}
+
+.form-check-label {
+    font-weight: 500;
+}
+
+.profile-pic-wrapper {
+    width: 120px;
+    height: 120px;
+}
+
+.profile-pic {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 4px solid white;
+    transition: 0.3s ease;
+}
+
+.edit-btn {
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    display: none;
+    z-index: 1;
+    opacity: 0.9;
+    background: none;
+    border: none;
+}
+
+.profile-pic-wrapper:hover .edit-btn {
+    display: block;
+}

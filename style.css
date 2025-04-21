@@ -1,58 +1,191 @@
 body {
     font-family: 'Segoe UI', sans-serif;
+    background-color: #f8f9fa;
+    color: #333;
 }
 
-.bg-warning {
+.bg-uwagold {
     background-color: #FDB913 !important;
+}
+
+.text-uwanavy {
+    color: #00205B !important;
 }
 
 .btn-primary {
     background-color: #00205B;
     border-color: #00205B;
+    transition: all 0.3s ease;
 }
 
-.btn-sm {
-    background-color: white;
+.btn-primary:hover {
+    background-color: #001845;
+    border-color: #001845;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
-.btn-primary:hover,
-.btn-dark:hover {
-    opacity: 0.9;
+.btn-success {
+    transition: all 0.3s ease;
 }
 
-.text-primary {
-    color: #00205B !important;
+.btn-success:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
-.form-check-label {
+.card {
+    border: none;
+    border-radius: 1rem;
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.08);
+    transition: all 0.3s ease;
+    margin-bottom: 1.5rem;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 0.75rem 1.5rem rgba(0, 0, 0, 0.12);
+}
+
+.card-title {
+    font-weight: 700;
+    color: #00205B;
+    margin-bottom: 1.25rem;
+    border-bottom: 2px solid #FDB913;
+    padding-bottom: 0.75rem;
+    display: inline-block;
+}
+
+.card-body {
+    padding: 1.5rem;
+}
+
+.card-body label {
     font-weight: 500;
+    color: #555;
+}
+
+/* Profile Picture Styling */
+.profile-pic {
+    width: 120px;
+    height: 120px;
+    object-fit: cover;
+    border: 4px solid white;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+    transition: all 0.3s ease;
 }
 
 .profile-pic-wrapper {
-    width: 120px;
-    height: 120px;
-}
-
-.profile-pic {
-    width: 100%;
-    height: 100%;
-    border-radius: 50%;
-    object-fit: cover;
-    border: 4px solid white;
-    transition: 0.3s ease;
+    margin-right: 2rem;
 }
 
 .edit-btn {
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    display: none;
-    z-index: 1;
-    opacity: 0.9;
-    background: none;
-    border: none;
+    position: absolute;
+    bottom: 5px;
+    right: 5px;
+    border-radius: 50%;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    background-color: #00205B;
+    border-color: white;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
 }
 
-.profile-pic-wrapper:hover .edit-btn {
-    display: block;
+.user-info {
+    padding-left: 1rem;
+}
+
+/* Friend List Styling */
+.list-group-item {
+    border: none;
+    background-color: transparent;
+    padding: 0.75rem 1rem;
+    margin-bottom: 0.5rem;
+    border-radius: 0.5rem;
+    transition: all 0.2s ease;
+}
+
+.list-group-item:hover {
+    background-color: rgba(253, 185, 19, 0.1);
+    transform: translateX(5px);
+}
+
+.list-group-item img {
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #FDB913;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+/* Friend Note */
+.friend-note {
+    background-color: rgba(253, 185, 19, 0.15);
+    color: #00205B;
+    font-weight: 500;
+    border-radius: 0.5rem;
+    padding: 0.75rem 1rem;
+    border-left: 4px solid #FDB913;
+}
+
+/* Form Styling */
+.form-control {
+    border-radius: 0.5rem;
+    padding: 0.6rem 1rem;
+    border: 1px solid #dee2e6;
+    transition: all 0.3s ease;
+}
+
+.form-control:focus {
+    border-color: #FDB913;
+    box-shadow: 0 0 0 0.25rem rgba(253, 185, 19, 0.25);
+}
+
+.form-switch .form-check-input:checked {
+    background-color: #00205B;
+    border-color: #00205B;
+}
+
+.form-switch .form-check-input:focus {
+    box-shadow: 0 0 0 0.25rem rgba(0, 32, 91, 0.25);
+}
+
+.settings-section {
+    background-color: #f8f9fa;
+    border-radius: 0.75rem;
+    padding: 1rem;
+    margin-bottom: 1rem;
+}
+
+.section-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.section-header i {
+    margin-right: 0.5rem;
+    color: #00205B;
+}
+
+.badge-online {
+    background-color: #28a745;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    display: inline-block;
+    margin-left: 0.5rem;
+}
+
+.header-section {
+    background-color: #00205B;
+    border-radius: 1rem 1rem 0 0;
+    padding: 1rem;
+    color: white;
+    margin-bottom: 1rem;
 }

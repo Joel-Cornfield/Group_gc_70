@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Leaderboards</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        background: #eef2f7;
+        color: #333;
+        margin: 0;
+        padding: 20px;
+      }
+  
+      h1 {
+        text-align: center;
+        color: #2c3e50;
+        margin-bottom: 40px;
+      }
+  
+      .leaderboard-container {
+        display: flex;
+        justify-content: center;
+        gap: 20px;
+      }
+  
+      .leaderboard {
+        background: white;
+        border-radius: 10px;
+        padding: 20px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        width: 300px;
+        flex: 1 1 280px;
+      }
+  
+      .leaderboard h2 {
+        border-bottom: 2px solid #ddd;
+        padding-bottom: 10px;
+        margin-bottom: 20px;
+        text-align: center;
+      }
+  
+      .entry {
+        display: flex;
+        justify-content: space-between;
+        padding: 8px 0;
+        border-bottom: 1px solid #eee;
+      }
+  
+      .entry:last-child {
+        border-bottom: none;
+      }
+  
+      .player {
+        font-weight: bold;
+      }
+  
+      .value {
+        color: #007bff;
+      }
+      .stat-row {
+        display: flex;
+        justify-content: center;
+        gap: 15px;
+        margin-top: 30px;
+        flex-wrap: wrap;
+      }
+
+        .stat-card {
+        background: #ffffff;
+        border-radius: 10px;
+        padding: 15px 20px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+        min-width: 160px;
+        text-align: center;
+      }
+
+        .stat-label {
+        font-size: 14px;
+        color: #666;
+        margin-bottom: 6px;
+      }
+
+        .stat-value {
+        font-size: 18px;
+        font-weight: bold;
+        color: #2c3e50;
+      }
+
+    </style>
+  </head>
+  <body>
+    <h1>🏆 Leaderboards</h1>
+  
+    <div class="leaderboard-container">
+      <div class="leaderboard">
+        <h2>🔥 Win Streak</h2>
+        <div class="entry"><span class="player">Alice</span><span class="value">12</span></div>
+        <div class="entry"><span class="player">Bob</span><span class="value">10</span></div>
+        <div class="entry"><span class="player">Charlie</span><span class="value">8</span></div>
+      </div>
+  
+      <div class="leaderboard">
+        <h2>🏅 Total Wins</h2>
+        <div class="entry"><span class="player">Charlie</span><span class="value">50</span></div>
+        <div class="entry"><span class="player">Alice</span><span class="value">45</span></div>
+        <div class="entry"><span class="player">Bob</span><span class="value">42</span></div>
+      </div>
+  
+      <div class="leaderboard">
+        <h2>📈 Win Percentage</h2>
+        <div class="entry"><span class="player">Bob</span><span class="value">92%</span></div>
+        <div class="entry"><span class="player">Alice</span><span class="value">89%</span></div>
+        <div class="entry"><span class="player">Charlie</span><span class="value">87%</span></div>
+      </div>
+    </div>
+
+<div class="stat-row">
+  <div class="stat-card">
+    <div class="stat-label">🎮 Total Plays</div>
+    <div class="stat-value">125</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-label">⏱️ Time Spent</div>
+    <div class="stat-value">4h 52m</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-label">📅 Started When</div>
+    <div class="stat-value">2025-03-15</div>
+  </div>
+</div>
+
+
+
+</html>
+

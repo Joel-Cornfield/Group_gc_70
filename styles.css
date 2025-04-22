@@ -10,14 +10,14 @@ body {
 #guess-map {
   width: 100%;
   aspect-ratio: 4 / 3;
-  border: 2px dashed var(--light-blue);
   position: relative;
-  cursor: grab;
   overflow: hidden;
   touch-action: none;
   max-height: 75vh;
 }
 #guess-map-content {
+  border: 5px dashed var(--light-blue);
+  border-radius: 10px;
   transform-origin: top left;
   transition: transform 0.1s ease;
   position: absolute;
@@ -59,4 +59,22 @@ body {
 }
 .button-warning {
   color: --uwa-gold;
+}
+
+/* Greyscale effect for the image */
+.hidden {
+  filter: grayscale(100%) blur(10px);
+  pointer-events: none; /* Disable interaction until revealed */
+}
+
+/* Reveal button styling */
+#reveal-button {
+  z-index: 10;
+  background-color:var(--uwa-blue);
+  display: block;
+}
+
+/* Hide the button after clicking */
+#reveal-button.hidden {
+  display: none;
 }

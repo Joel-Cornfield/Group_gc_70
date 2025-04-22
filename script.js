@@ -5,6 +5,10 @@ const mapContent = document.getElementById('guess-map-content');
 const feedback = document.getElementById('guess-feedback');
 const hint_squares = [document.getElementById("guess-1"), document.getElementById("guess-2"), document.getElementById("guess-3")];
 const hint_text = document.getElementById("hint-text");
+const revealButton = document.getElementById('reveal-button');
+const timerElement = document.getElementById('timer');
+const submitButton = document.getElementById('submitGuess');
+
 
 // State Variables
 let zoom = 0.5;
@@ -20,6 +24,8 @@ let guessY = 0;
 let answerLat = 0;
 let answerLong = 0;
 let guesses = 0;
+let timerInterval;
+let secondsElapsed = 0;
 
 // Functions
 
@@ -47,6 +53,20 @@ function imageCoordsToLatLng(x, y) {
   const lng = lngLeft + (x / imgWidth) * (lngRight - lngLeft);
 
   return { lat, lng };
+}
+
+// Format time as MM:SS
+function formatTime(seconds) {
+  const minutes = Math.floor(seconds / 60);
+  const secondsLeft = seconds % 60;
+  return `${minutes.toString().padStart(1, '0')}:${secondsLeft.toString().padStart(2, '0')}`;
+}
+
+function startTimer() {
+  timerInterval = setInterval(() => {
+    secondsElapsed++;
+    timerElement.textContent = `${formatTime(secondsElapsed)}`;
+  }, 1000);
 }
 
 // Calculates Haversine (direct) distance between two lat/lng points
@@ -143,8 +163,12 @@ function placePin(x, y) {
   setTimeout(() => feedback.classList.remove('show'), 600);
 }
 
-// TODO: Add a function to update the guess feedback based on the distance from the target location
-//TODO: Add a timer that starts when the user clicks reveal on the image
+function endGame() {
+  map.style.pointerEvents = 'none';
+  clearInterval(timerInterval); // Stop the timer
+  submitButton.style.pointerEvents = 'none'; // Disable the button
+  submitButton.style.opacity = '0.5'; // Dim the button
+}
 
 // Event Listeners
 document.addEventListener('DOMContentLoaded', () => {
@@ -242,24 +266,36 @@ map.addEventListener('click', (e) => {
 });
 
 document.getElementById('submitGuess').addEventListener('click', () => {
-  let hint = getGuessHint(guessX, guessY, answerLat, answerLong)
+  let hint = getGuessHint(guessX, guessY, answerLat, answerLong);
   alert(`Guess submitted! (dummy function)\nCoordinates: x=${guessX}, y=${guessY}\nLat/Lng: ${JSON.stringify(imageCoordsToLatLng(guessX, guessY))}\nScore: ${hint}`);
+  
   if (guesses < 3) {
     switch (hint) {
       case "Got it!":
-        hint_squares[guesses].textContent = '🟩'
+        hint_squares[guesses].textContent = '🟩';
+        endGame();
         break;
       case "Hot":
-        hint_squares[guesses].textContent = '🟥'
+        hint_squares[guesses].textContent = '🟥';
         break;
       case "Warm":
-        hint_squares[guesses].textContent = '🟧'
+        hint_squares[guesses].textContent = '🟧';
         break;
       case "Cold":
-        hint_squares[guesses].textContent = '🟦'
+        hint_squares[guesses].textContent = '🟦';
         break;
     }
     hint_text.textContent = hint;
     guesses++;
+    if (guesses >= 3) {
+      endGame();
+    }
   }
+});
+
+revealButton.addEventListener('click', () => {
+  guessImage.classList.remove('hidden');
+  guessImage.style.pointerEvents = 'auto'; // Enable interaction
+  revealButton.classList.add('hidden'); // Hide the button
+  startTimer(); // Start the timer
 });

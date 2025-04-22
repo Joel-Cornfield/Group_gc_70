@@ -1,8 +1,12 @@
+// DOM Elements
 const map = document.getElementById('guess-map');
 const guessImage = document.getElementById('guess-image');
 const mapContent = document.getElementById('guess-map-content');
 const feedback = document.getElementById('guess-feedback');
+const hint_squares = [document.getElementById("guess-1"), document.getElementById("guess-2"), document.getElementById("guess-3")];
+const hint_text = document.getElementById("hint-text");
 
+// State Variables
 let zoom = 0.5;
 let offsetX = 0;
 let offsetY = 0;
@@ -13,35 +17,141 @@ let startX, startY;
 let lastPin = null;
 let guessX = 0;
 let guessY = 0;
+let answerLat = 0;
+let answerLong = 0;
+let guesses = 0;
 
+// Functions
+
+// Initialize Map Background
 const img = new Image();
 img.src = 'images/UWA_map.jpg';
 img.onload = () => {
-  mapContent.style.width = `${img.width}px`;
-  mapContent.style.height = `${img.height}px`;
-  updateTransform();
+  initializeMap(img);
 };
 
-// Load random location from locations.json
-document.addEventListener('DOMContentLoaded', () => {
+// Convert image coordinates to latitude and longitude
+function imageCoordsToLatLng(x, y) {
+  // Known reference coordinates
+  const latTop = -31.973510;
+  const lngLeft = 115.812859;
+  const latBottom = -31.98694544764;
+  const lngRight = 115.8239020763047;
+
+  // Image dimensions
+  const imgWidth = 1000;
+  const imgHeight = 1400;
+
+  // Linear interpolation
+  const lat = latTop + (y / imgHeight) * (latBottom - latTop);
+  const lng = lngLeft + (x / imgWidth) * (lngRight - lngLeft);
+
+  return { lat, lng };
+}
+
+// Calculates Haversine (direct) distance between two lat/lng points
+function haversineDistance(lat1, lon1, lat2, lon2) {
+  const toRad = (x) => x * Math.PI / 180;
+
+  const R = 6371000; // Earth radius in meters
+  const dLat = toRad(lat2 - lat1);
+  const dLon = toRad(lon2 - lon1);
+
+  const a = Math.sin(dLat / 2) ** 2 +
+            Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) *
+            Math.sin(dLon / 2) ** 2;
+
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+
+  return R * c;
+}
+
+// Returns score based on the distance from the target location
+function getGuessHint(guessX, guessY, targetLat, targetLng) {
+  const { lat: guessLat, lng: guessLng } = imageCoordsToLatLng(guessX, guessY);
+
+  // Calculate the distance
+  const distance = haversineDistance(guessLat, guessLng, targetLat, targetLng);
+  console.log(`Distance: ${distance} meters`);
+
+  // Return hint based on distance
+  if (distance <= 25) return "Got it!";
+  if (distance <= 75) return "Hot";
+  if (distance <= 125) return "Warm";
+  return "Cold";
+}
+
+
+function initializeMap(image) {
+  mapContent.style.width = `${image.width}px`;
+  mapContent.style.height = `${image.height}px`;
+  mapContent.style.backgroundImage = `url('${image.src}')`;
+  mapContent.style.backgroundSize = 'contain';
+  mapContent.style.backgroundRepeat = 'no-repeat';
+  updateTransform();
+}
+
+function loadRandomLocation() {
   fetch('locations.json')
     .then((response) => response.json())
     .then((locations) => {
       const randomLocation = locations[Math.floor(Math.random() * locations.length)];
       guessImage.src = `images/${randomLocation.name.split(' ').join('_')}.jpg`;
       console.log(`Loaded location: ${randomLocation.name}`);
+      answerLat = randomLocation.latitude;
+      answerLong = randomLocation.longitude;
     })
     .catch((error) => console.error('Error loading locations:', error));
-});
-
-
-
-
-function updateTransform() {
-  mapContent.style.transform = `translate(${offsetX}px, ${offsetY}px) scale(${zoom})`;
 }
 
-map.addEventListener('wheel', function (e) {
+function updateTransform() {
+  // Constrain offsets to keep the map within bounds
+  const mapRect = map.getBoundingClientRect();
+  const contentWidth = mapContent.offsetWidth * zoom;
+  const contentHeight = mapContent.offsetHeight * zoom;
+
+  const minX = Math.min(0, mapRect.width - contentWidth);
+  const maxX = 0;
+  const minY = Math.min(0, mapRect.height - contentHeight);
+  const maxY = 0;
+
+  offsetX = Math.max(minX, Math.min(maxX, offsetX));
+  offsetY = Math.max(minY, Math.min(maxY, offsetY));
+
+  // Apply transform
+  mapContent.style.transform = `translate(${offsetX}px, ${offsetY}px) scale(${zoom})`;
+
+  // Update pin position
+  if (lastPin) {
+    lastPin.style.left = `${guessX}px`;
+    lastPin.style.top = `${guessY}px`;
+  }
+}
+
+function placePin(x, y) {
+  if (lastPin) lastPin.remove();
+
+  const pin = document.createElement('div');
+  pin.classList.add('pin');
+  pin.style.left = `${x}px`;
+  pin.style.top = `${y}px`;
+  pin.textContent = '📍';
+  mapContent.appendChild(pin);
+  lastPin = pin;
+
+  feedback.classList.add('show');
+  setTimeout(() => feedback.classList.remove('show'), 600);
+}
+
+// TODO: Add a function to update the guess feedback based on the distance from the target location
+//TODO: Add a timer that starts when the user clicks reveal on the image
+
+// Event Listeners
+document.addEventListener('DOMContentLoaded', () => {
+  loadRandomLocation();
+});
+
+map.addEventListener('wheel', (e) => {
   e.preventDefault();
   const rect = map.getBoundingClientRect();
   const mouseX = e.clientX - rect.left;
@@ -119,31 +229,37 @@ map.addEventListener('touchmove', (e) => {
   }
 }, { passive: false });
 
-map.addEventListener('click', function (e) {
+map.addEventListener('click', (e) => {
   const rect = map.getBoundingClientRect();
-  let tempX = (e.clientX - rect.left - offsetX) / zoom;
-  let tempY = (e.clientY - rect.top - offsetY) / zoom;
-  if ((tempX > 0) && (tempX < 1000) && (tempY > 0) && (tempY < 1400)) {     
+  const tempX = (e.clientX - rect.left - offsetX) / zoom;
+  const tempY = (e.clientY - rect.top - offsetY) / zoom;
+  if (tempX > 0 && tempX < 1000 && tempY > 0 && tempY < 1400) {
     guessX = tempX;
     guessY = tempY;
-
     console.log(`Guess coordinates: x=${guessX}, y=${guessY}`);
-
-    if (lastPin) lastPin.remove();
-
-    const pin = document.createElement('div');
-    pin.classList.add('pin');
-    pin.style.left = `${guessX}px`;
-    pin.style.top = `${guessY}px`;
-    pin.textContent = '📍';
-    mapContent.appendChild(pin);
-    lastPin = pin;
-
-    feedback.classList.add('show');
-    setTimeout(() => feedback.classList.remove('show'), 600);
-  } 
+    placePin(guessX, guessY);
+  }
 });
 
 document.getElementById('submitGuess').addEventListener('click', () => {
-  alert("Guess submitted! (dummy function) \nCoordinates: " + `x=${guessX}, y=${guessY}`);
+  let hint = getGuessHint(guessX, guessY, answerLat, answerLong)
+  alert(`Guess submitted! (dummy function)\nCoordinates: x=${guessX}, y=${guessY}\nLat/Lng: ${JSON.stringify(imageCoordsToLatLng(guessX, guessY))}\nScore: ${hint}`);
+  if (guesses < 3) {
+    switch (hint) {
+      case "Got it!":
+        hint_squares[guesses].textContent = '🟩'
+        break;
+      case "Hot":
+        hint_squares[guesses].textContent = '🟥'
+        break;
+      case "Warm":
+        hint_squares[guesses].textContent = '🟧'
+        break;
+      case "Cold":
+        hint_squares[guesses].textContent = '🟦'
+        break;
+    }
+    hint_text.textContent = hint;
+    guesses++;
+  }
 });

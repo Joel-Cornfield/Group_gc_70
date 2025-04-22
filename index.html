@@ -15,18 +15,30 @@
         <img id="guess-image" src="" alt="Guess Image" class="img-fluid rounded">
       </div>
 
-      <!-- Map + Button Section -->
+      <!-- Map + Feedback Section -->
       <div class="col-md-6 d-flex flex-column">
         <div id="guess-map" class="rounded mb-3">
-          <div id="guess-map-content" background-image="url('images/UWA_Map.png')">
-          </div>
+          <div id="guess-map-content" style="background-image: url('images/UWA_Map.png');"></div>
           <div id="guess-feedback">📍 Guess placed</div>
         </div>
       </div>
-      <div class="row">
-        <div class="col-12 text-center">
-          <button class="btn btn-warning" id="submitGuess">Submit Guess</button>
-        </div>
+    </div>
+
+    <!-- Feedback Area -->
+    <div id="feedback-area" class="text-center mb-3 mt-4">
+      <!-- Guess Squares -->
+      <div id="guess-tracker" class="d-flex justify-content-center mb-2">
+        <div id="guess-1" class="guess-square mx-1">⬛</div>
+        <div id="guess-2" class="guess-square mx-1">⬛</div>
+        <div id="guess-3" class="guess-square mx-1">⬛</div>
+      </div>
+      <!-- Hint Text -->
+      <div id="hint-text" class="fs-4 fw-bold">Make your first guess to get a hint</div>
+    </div>
+    <!-- Button Section -->
+    <div class="row">
+      <div class="col-12 text-center">
+        <button class="btn btn-warning" id="submitGuess">Submit Guess</button>
       </div>
     </div>
   </div>

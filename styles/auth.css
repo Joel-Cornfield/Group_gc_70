@@ -1,0 +1,208 @@
+:root {
+    --uwa-blue: #003087;
+    --uwa-gold: #DAAA00;
+    --light-blue: #007bff;
+}
+
+body {
+    background-color: #f8f9fa;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: url("../images/UWA_map.jpg");
+    background-size: cover;
+}
+
+.bg-uwa-blue {
+    background-color: var(--uwa-blue);
+}
+
+.text-uwa-gold {
+    color: var(--uwa-gold);
+}
+
+.btn-uwa {
+    background-color: var(--uwa-blue);
+    color: white;
+    border: none;
+    transition: all 0.3s;
+}
+
+.btn-uwa:hover {
+    background-color: var(--uwa-gold);
+    color: var(--uwa-blue);
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.auth-container {
+    display: flex;
+    max-width: 900px;
+    margin: 2rem auto;
+    border-radius: 15px;
+    overflow: hidden;
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+}
+
+.auth-row {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.auth-sidebar, .auth-form {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.auth-col {
+    display: flex;
+    flex-direction: column;
+}
+
+.auth-sidebar {
+    background: linear-gradient(135deg, var(--uwa-blue) 0%, #001a49 100%);
+    color: white;
+    padding: 2rem;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start; /* ensures items align to top-left */
+}
+
+
+.auth-sidebar::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    opacity: 0.2;
+    z-index: 0;
+}
+
+.sidebar-content {
+    position: relative;
+    z-index: 1;
+}
+
+.auth-form {
+    padding: 2rem;
+    background: white;
+}
+
+.nav-tabs {
+    border-bottom: none;
+}
+
+.nav-tabs .nav-link {
+    border: none;
+    color: #6c757d;
+    font-weight: 600;
+    padding: 1rem 1.5rem;
+    border-radius: 0;
+    transition: all 0.3s;
+}
+
+.nav-tabs .nav-link.active {
+    color: var(--uwa-blue);
+    background-color: transparent;
+    border-bottom: 3px solid var(--uwa-blue);
+}
+
+.form-control {
+    border-radius: 8px;
+    padding: 0.8rem 1rem;
+    border: 1px solid #ced4da;
+    transition: all 0.3s;
+}
+
+.form-control:focus {
+    border-color: var(--light-blue);
+    box-shadow: 0 0 0 0.25rem rgba(0, 48, 135, 0.25);
+}
+
+.form-floating label {
+    padding: 0.8rem 1rem;
+}
+
+.badge-feature {
+    background-color: rgba(218, 170, 0, 0.2);
+    color: var(--uwa-gold);
+    font-weight: 600;
+    padding: 0.5rem 1rem;
+    border-radius: 50px;
+    display: inline-block;
+    margin-bottom: 0.5rem;
+}
+
+.feature-icon {
+    background-color: rgba(255, 255, 255, 0.1);
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    margin-right: 1rem;
+}
+
+.social-login {
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 0.8rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s;
+    cursor: pointer;
+}
+
+.social-login:hover {
+    background-color: #f8f9fa;
+    transform: translateY(-2px);
+}
+
+.logo {
+    height: 40px;
+    width: 40px;
+    margin-top: 0;
+}
+
+.divider {
+    display: flex;
+    align-items: center;
+    color: #6c757d;
+    margin: 1.5rem 0;
+}
+
+.divider::before,
+.divider::after {
+    content: "";
+    flex: 1;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.divider span {
+    padding: 0 1rem;
+}
+
+.campus-fact {
+    font-style: italic;
+    font-size: 0.9rem;
+    margin-top: 2rem;
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.form-padding-bottom {
+    padding-bottom: 1rem;
+}
+
+.tab-content {
+    flex: 1;
+    display: flex;
+}
+
+.tab-pane {
+    flex: 1;
+    width: 100%;
+}

@@ -13,9 +13,8 @@ class Friend(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     friend_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
 
-    __table_args__  = (
-        db.UniqueConstraint('user_id', 'friend_id', name='unique_friendship')
-    )
+    user = db.relationship('User', foreign_keys=[user_id], backref='friends')
+    friend = db.relationship('User', foreign_keys=[friend_id])
 
 class GameHistory(db.Model):
     id = db.Column(db.Integer, primary_key=True)

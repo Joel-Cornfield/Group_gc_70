@@ -31,7 +31,7 @@ let secondsElapsed = 0;
 
 // Initialize Map Background
 const img = new Image();
-img.src = 'images/UWA_map.jpg';
+img.src = '../images/UWA_map.jpg';
 img.onload = () => {
   initializeMap(img);
 };
@@ -112,11 +112,12 @@ function initializeMap(image) {
 }
 
 function loadRandomLocation() {
-  fetch('locations.json')
+  fetch('../locations.json')
     .then((response) => response.json())
     .then((locations) => {
       const randomLocation = locations[Math.floor(Math.random() * locations.length)];
-      guessImage.src = `images/${randomLocation.name.split(' ').join('_')}.jpg`;
+      guessImage.src = `../images/${randomLocation.name.split(' ').join('_')}.jpg`;
+      console.log(`Loaded image: ${guessImage.src}`);
       console.log(`Loaded location: ${randomLocation.name}`);
       answerLat = randomLocation.latitude;
       answerLong = randomLocation.longitude;
@@ -267,7 +268,7 @@ map.addEventListener('click', (e) => {
 
 document.getElementById('submitGuess').addEventListener('click', () => {
   let hint = getGuessHint(guessX, guessY, answerLat, answerLong);
-  alert(`Guess submitted! (dummy function)\nCoordinates: x=${guessX}, y=${guessY}\nLat/Lng: ${JSON.stringify(imageCoordsToLatLng(guessX, guessY))}\nScore: ${hint}`);
+  console.log(`Guess submitted! (dummy function)\nCoordinates: x=${guessX}, y=${guessY}\nLat/Lng: ${JSON.stringify(imageCoordsToLatLng(guessX, guessY))}\nScore: ${hint}`);
   
   if (guesses < 3) {
     switch (hint) {

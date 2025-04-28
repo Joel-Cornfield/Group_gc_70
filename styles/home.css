@@ -30,7 +30,6 @@ body {
 
 /* Main layout */
 .main-wrapper {
-	height: calc(100vh - 70px);
 	/* subtract navbar height */
 	display: flex;
 	overflow: hidden;

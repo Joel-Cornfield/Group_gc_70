@@ -1,5 +1,4 @@
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script>
+// This script generates a line chart using Chart.js to visualize the total guess time for each round in a game.
   const allRounds = Array.from({ length: 120 }, (_, i) => `Round ${i + 1}`);
   const allGuessTimes = Array.from({ length: 120 }, () => Math.floor(Math.random() * 100));
 
@@ -45,4 +44,3 @@
       }
     }
   });
-</script>

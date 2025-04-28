@@ -1,183 +1,106 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Leaderboards</title>
-  <link rel="stylesheet" href="../styles/auth.css">
+	<meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<title>Leaderboards</title>
+	<!-- Scripts -->
+	<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+	<script src="../scripts/analyticgraph.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+	<!-- Style Sheets -->
+	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+	<link rel="stylesheet" href="../styles/analytics.css">
+	<link rel="stylesheet" href="../styles/navbar.css">
 </head>
+
 <body>
-  <h1>🏆 Leaderboards</h1>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #eef2f7;
-      color: #333;
-      margin: 0;
-      padding: 20px;
-    }
-    
-    h1 {
-      text-align: center;
-      color: #2c3e50;
-      margin-bottom: 40px;
-    }
-    
-    .leaderboard-container {
-      display: flex;
-      justify-content: center;
-      gap: 20px;
-      overflow-x: auto;
-      padding-bottom: 20px;
-      max-width: 100%;
-    }
-    
-    .leaderboard {
-      background: white;
-      border-radius: 10px;
-      padding: 20px;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-      width: 300px;
-      flex: 0 0 auto;
-      max-height: 100px;
-      overflow-y: auto;
-    }
-    
-    .leaderboard h2 {
-      border-bottom: 2px solid #ddd;
-      padding-bottom: 10px;
-      margin-bottom: 20px;
-      text-align: center;
-    }
-    
-    .entry {
-      display: flex;
-      justify-content: space-between;
-      padding: 8px 0;
-      border-bottom: 1px solid #eee;
-    }
-    
-    .entry:last-child {
-      border-bottom: none;
-    }
-    
-    .player {
-      font-weight: bold;
-    }
-    
-    .value {
-      color: #007bff;
-    }
-    
-    .stat-row {
-      display: flex;
-      justify-content: center;
-      gap: 15px;
-      margin-top: 30px;
-      flex-wrap: wrap;
-    }
-    
-    .stat-card {
-      background: #ffffff;
-      border-radius: 10px;
-      padding: 15px 20px;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-      min-width: 125px;
-      text-align: center;
-    }
-    
-    .stat-label {
-      font-size: 14px;
-      color: #666;
-      margin-bottom: 6px;
-    }
-    
-    .stat-value {
-      font-size: 18px;
-      font-weight: bold;
-      color: #2c3e50;
-    }
-    
-    .stat-rank {
-      font-size: 14px;
-      color: #999;
-      margin-top: 4px;
-    }
-    
-    .chart-container {
-      margin-top: 50px;
-      max-width: 700px;
-      margin-left: auto;
-      margin-right: auto;
-      background: #fff;
-      border-radius: 10px;
-      padding: 20px;
-      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-    }
-    
-    .chart-container h2 {
-      text-align: center;
-      margin-bottom: 20px;
-    }
-  </style>
+	<!-- Navbar -->
+	<nav class="navbar navbar-expand-lg navbar-dark bg-uwa px-4">
+		<a class="navbar-brand d-flex align-items-center" href="#">
+			<img src="../images/uwa.webp" alt="UWA Logo" class="logo me-2">
+			<span class="fw-bold text-uwa-gold">UWA GeoGuesser</span>
+		</a>
+		<div class="ms-auto d-flex align-items-center">
+			<a class="nav-link text-white mx-2" href="home.html">Home</a>
+			<a class="nav-link text-white mx-2" href="game.html">Game</a>
+			<a class="nav-link text-white mx-2" href="auth.html">Login/Signup</a>
+			<div class="dropdown">
+				<a class="nav-link dropdown-toggle d-flex align-items-center mx-2" href="#" role="button"
+					data-bs-toggle="dropdown">
+					<img src="../images/defaultprofile.png" alt="Profile Avatar" class="avatar-img">
+				</a>
+				<ul class="dropdown-menu dropdown-menu-end">
+					<li><a class="dropdown-item" href="profile.html">Your Profile</a></li>
+					<li><a class="dropdown-item" href="analyticpage.html">Statistics</a></li>
+					<li><a class="dropdown-item" href="#">Settings</a></li>
+					<li>
+						<hr class="dropdown-divider">
+					</li>
+					<li><a class="dropdown-item text-danger" href="#">Logout</a></li>
+				</ul>
+			</div>
+		</div>
+	</nav>
+	<h1>🏆 Leaderboards</h1>
+	<div class="leaderboard-container">
+		<div class="leaderboard">
+			<h2>🔥 Win Streak</h2>
+			<div class="entry"><span class="player">Alice</span><span class="value">12</span></div>
+			<div class="entry"><span class="player">Bob</span><span class="value">10</span></div>
+			<div class="entry"><span class="player">Charlie</span><span class="value">8</span></div>
+		</div>
 
+		<div class="leaderboard">
+			<h2>🏅 Total Wins</h2>
+			<div class="entry"><span class="player">Charlie</span><span class="value">50</span></div>
+			<div class="entry"><span class="player">Alice</span><span class="value">45</span></div>
+			<div class="entry"><span class="player">Bob</span><span class="value">42</span></div>
+		</div>
 
-  <div class="leaderboard-container">
-    <div class="leaderboard">
-      <h2>🔥 Win Streak</h2>
-      <div class="entry"><span class="player">Alice</span><span class="value">12</span></div>
-      <div class="entry"><span class="player">Bob</span><span class="value">10</span></div>
-      <div class="entry"><span class="player">Charlie</span><span class="value">8</span></div>
-    </div>
+		<div class="leaderboard">
+			<h2>📈 Win Percentage</h2>
+			<div class="entry"><span class="player">Bob</span><span class="value">92%</span></div>
+			<div class="entry"><span class="player">Alice</span><span class="value">89%</span></div>
+			<div class="entry"><span class="player">Charlie</span><span class="value">87%</span></div>
+		</div>
+	</div>
 
-    <div class="leaderboard">
-      <h2>🏅 Total Wins</h2>
-      <div class="entry"><span class="player">Charlie</span><span class="value">50</span></div>
-      <div class="entry"><span class="player">Alice</span><span class="value">45</span></div>
-      <div class="entry"><span class="player">Bob</span><span class="value">42</span></div>
-    </div>
+	<div class="stat-row">
+		<div class="stat-card">
+			<div class="stat-label">🎮 Total Plays</div>
+			<div class="stat-value">125</div>
+		</div>
+		<div class="stat-card">
+			<div class="stat-label">⏱️ Time Spent</div>
+			<div class="stat-value">4h 52m</div>
+		</div>
+		<div class="stat-card">
+			<div class="stat-label">🔥 Win Streak</div>
+			<div class="stat-value">Alice - 12</div>
+			<div class="stat-rank">Rank: 1</div>
+		</div>
+		<div class="stat-card">
+			<div class="stat-label">🏅 Total Wins</div>
+			<div class="stat-value">Alice - 45</div>
+			<div class="stat-rank">Rank: 2</div>
+		</div>
+		<div class="stat-card">
+			<div class="stat-label">📈 Win Percentage</div>
+			<div class="stat-value">Alice - 89%</div>
+			<div class="stat-rank">Rank: 2</div>
+		</div>
+		<div class="stat-card">
+			<div class="stat-label">🗕️ Started When</div>
+			<div class="stat-value">2025-03-15</div>
 
-    <div class="leaderboard">
-      <h2>📈 Win Percentage</h2>
-      <div class="entry"><span class="player">Bob</span><span class="value">92%</span></div>
-      <div class="entry"><span class="player">Alice</span><span class="value">89%</span></div>
-      <div class="entry"><span class="player">Charlie</span><span class="value">87%</span></div>
-    </div>
-  </div>
+		</div>
 
-  <div class="stat-row">
-    <div class="stat-card">
-      <div class="stat-label">🎮 Total Plays</div>
-      <div class="stat-value">125</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-label">⏱️ Time Spent</div>
-      <div class="stat-value">4h 52m</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-label">🔥 Win Streak</div>
-      <div class="stat-value">Alice - 12</div>
-      <div class="stat-rank">Rank: 1</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-label">🏅 Total Wins</div>
-      <div class="stat-value">Alice - 45</div>
-      <div class="stat-rank">Rank: 2</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-label">📈 Win Percentage</div>
-      <div class="stat-value">Alice - 89%</div>
-      <div class="stat-rank">Rank: 2</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-label">🗕️ Started When</div>
-      <div class="stat-value">2025-03-15</div>
-    
-  </div>
-
-  <div class="chart-container">
-    <h2>📊 Guess Time Per Round</h2>
-    <canvas id="guessTimeChart" height="120"></canvas>
-  </div>
+		<div class="chart-container">
+			<h2>📊 Guess Time Per Round</h2>
+			<canvas id="guessTimeChart" height="120"></canvas>
+		</div>
 </body>
+
 </html>

@@ -1,108 +1,82 @@
 :root {
-  --uwa-blue: #003087;
-  --uwa-gold: #DAAA00;
-  --light-blue: #007bff;
+	--uwa-blue: #003087;
+	--uwa-gold: #DAAA00;
+	--light-blue: #007bff;
 }
 
-html, body {
-  height: 100%;
-  margin: 0;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  background-color: #001e4f;
-  overflow: hidden;
-  color: white;
-}
-
-.bg-uwa {
-  background-color: var(--uwa-blue);
-}
-
-.text-uwa-gold {
-  color: var(--uwa-gold);
-}
-
-.logo {
-  height: 36px;
-  width: 36px;
-}
-
-.avatar-img {
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  object-fit: cover;
-  border: 2px solid white;
-  box-shadow: 0 0 4px rgba(0, 0, 0, 0.2);
-}
-
-.navbar .nav-link:hover {
-  color: var(--uwa-gold) !important;
-  text-decoration: underline;
-  transition: color 0.2s ease-in-out;
+html,
+body {
+	height: 100%;
+	margin: 0;
+	font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+	background-color: #001e4f;
+	overflow: hidden;
+	color: white;
 }
 
 .btn-uwa {
-  background-color: var(--uwa-blue);
-  color: white;
-  border: none;
-  transition: all 0.3s ease-in-out;
+	background-color: var(--uwa-blue);
+	color: white;
+	border: none;
+	transition: all 0.3s ease-in-out;
 }
 
 .btn-uwa:hover {
-  background-color: var(--uwa-gold);
-  color: var(--uwa-blue);
-  transform: translateY(-2px);
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+	background-color: var(--uwa-gold);
+	color: var(--uwa-blue);
+	transform: translateY(-2px);
+	box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
 }
 
 /* Main layout */
 .main-wrapper {
-  height: calc(100vh - 70px); /* subtract navbar height */
-  display: flex;
-  overflow: hidden;
-  background-color: #001e4f;
+	/* subtract navbar height */
+	display: flex;
+	overflow: hidden;
+	background-color: #001e4f;
 }
 
 .text-container {
-  flex: 1;
-  color: white;
-  padding: 2rem;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
+	flex: 1;
+	color: white;
+	padding: 2rem;
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
 }
 
 /* Scrolling map area */
 .scrolling-map-container {
-  width: 700px;
-  height: 100vh;
-  overflow: hidden;
-  flex-shrink: 0;
-  position: relative;
+	width: 700px;
+	height: 100vh;
+	overflow: hidden;
+	flex-shrink: 0;
+	position: relative;
 }
 
 .scrolling-map {
-  animation: scrollMap 20s ease-in-out infinite alternate;
+	animation: scrollMap 20s ease-in-out infinite alternate;
 }
 
 .uwa-map {
-  display: block;
-  width: 100%;
-  height: auto;
+	display: block;
+	width: 100%;
+	height: auto;
 }
 
 /* Scroll animation */
 @keyframes scrollMap {
-  0% {
-    transform: translateY(0);
-  }
-  100% {
-    transform: translateY(calc(-100% + 100vh));
-  }
+	0% {
+		transform: translateY(0);
+	}
+
+	100% {
+		transform: translateY(calc(-100% + 100vh));
+	}
 }
 
 /* Optional: Pause scrolling on hover */
 .scrolling-map-container:hover .scrolling-map {
-  animation-play-state: paused;
+	animation-play-state: paused;
 }

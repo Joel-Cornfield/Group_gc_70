@@ -1,0 +1,44 @@
+:root {
+	--uwa-blue: #003087;
+	--uwa-gold: #DAAA00;
+	--light-blue: #007bff;
+}
+
+body {
+    padding-top: 50px; /* Adjust for fixed navbar height */
+}
+
+.navbar {
+    position: fixed; /* Make the navbar stick to the top */
+    top: 0;
+    width: 100%; /* Ensure it spans the full width */
+    z-index: 1030; /* Ensure it stays above other elements */
+}
+
+.navbar .nav-link:hover {
+    color: var(--uwa-gold) !important;
+    text-decoration: underline;
+    transition: color 0.2s ease-in-out;
+}
+
+.logo {
+    height: 36px;
+    width: 36px;
+}
+
+.avatar-img {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid white;
+    box-shadow: 0 0 4px rgba(0, 0, 0, 0.2);
+}
+
+.bg-uwa {
+    background-color: var(--uwa-blue);
+}
+
+.text-uwa-gold {
+    color: var(--uwa-gold);
+}

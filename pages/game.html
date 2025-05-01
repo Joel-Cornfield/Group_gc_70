@@ -21,31 +21,29 @@
   <!-- Navbar -->
   <nav class="navbar navbar-expand-lg navbar-dark bg-uwa px-4">
     <a class="navbar-brand d-flex align-items-center" href="#">
-      <img src="../images/uwa.webp" alt="UWA Logo" class="logo me-2">
+      <img src="{{ url_for('static', filename='images/uwa.webp') }}" alt="UWA Logo" class="logo me-2">
       <span class="fw-bold text-uwa-gold">UWA GeoGuesser</span>
     </a>
     <div class="ms-auto d-flex align-items-center">
-      <a class="nav-link text-white mx-2" href="home.html">Home</a>
-      <a class="nav-link text-white mx-2" href="game.html">Game</a>
-      <a class="nav-link text-white mx-2" href="auth.html">Login/Signup</a>
+      <a class="nav-link text-white mx-2" href="{{ url_for('home') }}">Home</a>
+      <a class="nav-link text-white mx-2" href="{{ url_for('game') }}">Game</a>
+      <a class="nav-link text-white mx-2" href="{{ url_for('auth') }}">Login/Signup</a>
       <div class="dropdown">
-        <a class="nav-link dropdown-toggle d-flex align-items-center mx-2" href="#" role="button"
-          data-bs-toggle="dropdown">
-          <img src="../images/defaultprofile.png" alt="Profile Avatar" class="avatar-img">
+        <a class="nav-link dropdown-toggle d-flex align-items-center mx-2" href="#" role="button" data-bs-toggle="dropdown">
+          <img src="{{ user.profile_picture or url_for('static', filename='images/defaultprofile.png') }}" alt="Profile Avatar" class="avatar-img">
         </a>
         <ul class="dropdown-menu dropdown-menu-end">
-          <li><a class="dropdown-item" href="profile.html">Your Profile</a></li>
-          <li><a class="dropdown-item" href="analyticpage.html">Statistics</a></li>
+          <li><a class="dropdown-item" href="{{ url_for('profile') }}">Your Profile</a></li>
+          <li><a class="dropdown-item" href="{{ url_for('analytics') }}">Statistics</a></li>
           <li><a class="dropdown-item" href="#">Settings</a></li>
           <li>
             <hr class="dropdown-divider">
           </li>
-          <li><a class="dropdown-item text-danger" href="#">Logout</a></li>
+          <li><a class="dropdown-item text-danger" href="{{ url_for('logout') }}">Logout</a></li>
         </ul>
       </div>
     </div>
   </nav>
-
   <div class="container py-4">
     <div class="row g-3">
       <!-- Image Section -->

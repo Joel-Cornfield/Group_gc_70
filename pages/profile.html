@@ -16,30 +16,30 @@
   <!-- Navbar -->
   <nav class="navbar navbar-expand-lg navbar-dark bg-uwa px-4">
     <a class="navbar-brand d-flex align-items-center" href="#">
-      <img src="../images/uwa.webp" alt="UWA Logo" class="logo me-2">
+      <img src="{{ url_for('static', filename='images/uwa.webp') }}" alt="UWA Logo" class="logo me-2">
       <span class="fw-bold text-uwa-gold">UWA GeoGuesser</span>
     </a>
     <div class="ms-auto d-flex align-items-center">
-      <a class="nav-link text-white mx-2" href="home.html">Home</a>
-      <a class="nav-link text-white mx-2" href="game.html">Game</a>
-      <a class="nav-link text-white mx-2" href="auth.html">Login/Signup</a>
+      <a class="nav-link text-white mx-2" href="{{ url_for('home') }}">Home</a>
+      <a class="nav-link text-white mx-2" href="{{ url_for('game') }}">Game</a>
+      <a class="nav-link text-white mx-2" href="{{ url_for('auth') }}">Login/Signup</a>
       <div class="dropdown">
-        <a class="nav-link dropdown-toggle d-flex align-items-center mx-2" href="#" role="button"
-          data-bs-toggle="dropdown">
-          <img src="../images/defaultprofile.png" alt="Profile Avatar" class="avatar-img">
+        <a class="nav-link dropdown-toggle d-flex align-items-center mx-2" href="#" role="button" data-bs-toggle="dropdown">
+          <img src="{{ user.profile_picture or url_for('static', filename='images/defaultprofile.png') }}" alt="Profile Avatar" class="avatar-img">
         </a>
         <ul class="dropdown-menu dropdown-menu-end">
-          <li><a class="dropdown-item" href="profile.html">Your Profile</a></li>
-          <li><a class="dropdown-item" href="analyticpage.html">Statistics</a></li>
+          <li><a class="dropdown-item" href="{{ url_for('profile') }}">Your Profile</a></li>
+          <li><a class="dropdown-item" href="{{ url_for('analytics') }}">Statistics</a></li>
           <li><a class="dropdown-item" href="#">Settings</a></li>
           <li>
             <hr class="dropdown-divider">
           </li>
-          <li><a class="dropdown-item text-danger" href="#">Logout</a></li>
+          <li><a class="dropdown-item text-danger" href="{{ url_for('logout') }}">Logout</a></li>
         </ul>
       </div>
     </div>
   </nav>
+
   <div class="container py-5">
     <div class="row">
       <!-- Profile Section -->
@@ -48,18 +48,17 @@
           <div class="card-body">
             <div class="d-flex flex-column flex-md-row align-items-center align-items-md-start">
               <div class="position-relative mb-3 mb-md-0">
-                <img src="../images/defaultprofile.png" alt="Avatar" class="rounded-circle profile-pic">
+                <img src="{{ user.profile_picture or url_for('static', filename='images/defaultprofile.png') }}" alt="Avatar" class="rounded-circle profile-pic">
                 <button class="btn btn-dark btn-sm edit-btn">
                   <i class="bi bi-pencil-fill"></i>
                 </button>
               </div>
               <div class="user-info text-center text-md-start">
-                <h3 class="fw-bold mb-1">Guest User</h3>
-                <p class="text-muted mb-2"><i class="bi bi-person-fill me-2"></i>@guestuser</p>
-                <p class="text-muted mb-3"><i class="bi bi-envelope-fill me-2"></i>user@example.com</p>
+                <h3 class="fw-bold mb-1">{{ user.first_name }} {{ user.last_name }}</h3>
+                <p class="text-muted mb-2"><i class="bi bi-person-fill me-2"></i>@{{ user.username }}</p>
+                <p class="text-muted mb-3"><i class="bi bi-envelope-fill me-2"></i>{{ user.email }}</p>
                 <div class="d-flex justify-content-center justify-content-md-start">
-                  <button class="btn btn-sm btn-primary me-2"><i class="bi bi-pencil-square me-2"></i>Edit
-                    Profile</button>
+                  <button class="btn btn-sm btn-primary me-2"><i class="bi bi-pencil-square me-2"></i>Edit Profile</button>
                 </div>
               </div>
             </div>
@@ -130,34 +129,23 @@
           </div>
           <div class="card-body">
             <div class="d-flex justify-content-between align-items-center mb-3">
-              <span class="text-muted">You have 2 friends</span>
+              <span class="text-muted">You have {{ friends_count }} friends</span>
             </div>
 
             <ul class="list-group mb-4">
+              {% for friend in friends %}
               <li class="list-group-item d-flex justify-content-between align-items-center">
                 <div class="d-flex align-items-center">
-                  <img src="../images/user1.png" alt="Friend Avatar" class="me-3">
+                  <img src="{{ friend.profile_picture or url_for('static', filename='images/defaultprofile.png') }}" alt="Friend Avatar" class="me-3">
                   <div>
-                    <span class="fw-medium">Jane Smith</span>
-                    <div class="d-flex align-items-center">
-                      <small class="text-muted">Online</small>
-                      <span class="badge-online ms-2"></span>
-                    </div>
-                  </div>
-                </div>
-              </li>
-
-              <li class="list-group-item d-flex justify-content-between align-items-center">
-                <div class="d-flex align-items-center">
-                  <img src="../images/user2.png" alt="Friend Avatar" class="me-3">
-                  <div>
-                    <span class="fw-medium">Bob Johnson</span>
+                    <span class="fw-medium">{{ friend.name }}</span>
                     <div>
-                      <small class="text-muted">Offline · 2h ago</small>
+                      <small class="text-muted">{{ friend.status }}</small>
                     </div>
                   </div>
                 </div>
               </li>
+              {% endfor %}
             </ul>
 
             <div class="mb-4">
@@ -166,8 +154,7 @@
                 <h6 class="mb-0">Find New Friends</h6>
               </div>
               <div class="input-group mb-3">
-                <input type="text" class="form-control" placeholder="Search by username or email"
-                  aria-label="Search friends">
+                <input type="text" class="form-control" placeholder="Search by username or email" aria-label="Search friends">
                 <button class="btn btn-primary" type="button">
                   <i class="bi bi-search"></i>
                 </button>
@@ -178,44 +165,6 @@
               <i class="bi bi-info-circle me-2"></i>
               Once a friend is added, their personal stats page becomes viewable.
             </p>
-          </div>
-        </div>
-
-        <!-- Activity Section -->
-        <div class="card mt-4">
-          <div class="header-section">
-            <h5 class="mb-0"><i class="bi bi-activity me-2"></i>Recent Activity</h5>
-          </div>
-          <div class="card-body">
-            <div class="d-flex align-items-center mb-3">
-              <div class="bg-uwagold p-2 rounded me-3">
-                <i class="bi bi-trophy-fill text-uwanavy"></i>
-              </div>
-              <div>
-                <p class="mb-0 fw-medium">Achieved new quickest time</p>
-                <small class="text-muted">Yesterday</small>
-              </div>
-            </div>
-
-            <div class="d-flex align-items-center mb-3">
-              <div class="bg-uwagold p-2 rounded me-3">
-                <i class="bi bi-person-plus-fill text-uwanavy"></i>
-              </div>
-              <div>
-                <p class="mb-0 fw-medium">Connected with Jane Smith</p>
-                <small class="text-muted">2 days ago</small>
-              </div>
-            </div>
-
-            <div class="d-flex align-items-center">
-              <div class="bg-uwagold p-2 rounded me-3">
-                <i class="bi bi-gear-fill text-uwanavy"></i>
-              </div>
-              <div>
-                <p class="mb-0 fw-medium">Updated profile information</p>
-                <small class="text-muted">1 week ago</small>
-              </div>
-            </div>
           </div>
         </div>
       </div>

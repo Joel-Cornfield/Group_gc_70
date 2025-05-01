@@ -64,7 +64,7 @@ def submit_game():
 
 # Login Page (Example)
 @app.route('/auth')
-def login():
+def auth():
     return render_template('auth.html')
 
 # Login Form Submission (Example)

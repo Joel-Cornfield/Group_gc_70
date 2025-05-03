@@ -31,13 +31,17 @@
               <img src="{{ user.profile_picture or url_for('static', filename='images/defaultprofile.png') }}" alt="Profile Avatar" class="avatar-img">
             </a>
             <ul class="dropdown-menu dropdown-menu-end">
-              <li><a class="dropdown-item" href="{{ url_for('profile') }}">Your Profile</a></li>
-              <li><a class="dropdown-item" href="{{ url_for('analytics') }}">Statistics</a></li>
-              <li><a class="dropdown-item" href="#">Settings</a></li>
-              <li>
-                <hr class="dropdown-divider">
-              </li>
-              <li><a class="dropdown-item text-danger" href="{{ url_for('logout') }}">Logout</a></li>
+              {% if user.is_authenticated %}
+                <li><a class="dropdown-item" href="{{ url_for('profile', user_id=user.id) }}">Your Profile</a></li>
+                <li><a class="dropdown-item" href="{{ url_for('analytics', user_id=user.id) }}">Statistics</a></li>
+                <li><a class="dropdown-item" href="#">Settings</a></li>
+                <li>
+                  <hr class="dropdown-divider">
+                </li>
+                <li><a class="dropdown-item text-danger" href="{{ url_for('logout') }}">Logout</a></li>
+              {% else %}
+                <li><a class="dropdown-item" href="{{ url_for('auth') }}">Login/Signup</a></li>
+              {% endif %}
             </ul>
           </div>
         </div>

@@ -18,27 +18,31 @@
     <!-- Navbar -->
     <nav class="navbar navbar-expand-lg navbar-dark bg-uwa px-4">
         <a class="navbar-brand d-flex align-items-center" href="#">
-          <img src="{{ url_for('static', filename='images/uwa.webp') }}" alt="UWA Logo" class="logo me-2">
-          <span class="fw-bold text-uwa-gold">UWA GeoGuesser</span>
+            <img src="{{ url_for('static', filename='images/uwa.webp') }}" alt="UWA Logo" class="logo me-2">
+            <span class="fw-bold text-uwa-gold">UWA GeoGuesser</span>
         </a>
         <div class="ms-auto d-flex align-items-center">
-          <a class="nav-link text-white mx-2" href="{{ url_for('home') }}">Home</a>
-          <a class="nav-link text-white mx-2" href="{{ url_for('game') }}">Game</a>
-          <a class="nav-link text-white mx-2" href="{{ url_for('auth') }}">Login/Signup</a>
-          <div class="dropdown">
-            <a class="nav-link dropdown-toggle d-flex align-items-center mx-2" href="#" role="button" data-bs-toggle="dropdown">
-              <img src="{{ user.profile_picture or url_for('static', filename='images/defaultprofile.png') }}" alt="Profile Avatar" class="avatar-img">
-            </a>
-            <ul class="dropdown-menu dropdown-menu-end">
-              <li><a class="dropdown-item" href="{{ url_for('profile') }}">Your Profile</a></li>
-              <li><a class="dropdown-item" href="{{ url_for('analytics') }}">Statistics</a></li>
-              <li><a class="dropdown-item" href="#">Settings</a></li>
-              <li>
-                <hr class="dropdown-divider">
-              </li>
-              <li><a class="dropdown-item text-danger" href="{{ url_for('logout') }}">Logout</a></li>
-            </ul>
-          </div>
+            <a class="nav-link text-white mx-2" href="{{ url_for('home') }}">Home</a>
+            <a class="nav-link text-white mx-2" href="{{ url_for('game') }}">Game</a>
+            <a class="nav-link text-white mx-2" href="{{ url_for('auth') }}">Login/Signup</a>
+            <div class="dropdown">
+                <a class="nav-link dropdown-toggle d-flex align-items-center mx-2" href="#" role="button" data-bs-toggle="dropdown">
+                  <img src="{{ user.profile_picture or url_for('static', filename='images/defaultprofile.png') }}" alt="Profile Avatar" class="avatar-img">
+                </a>
+                <ul class="dropdown-menu dropdown-menu-end">
+                  {% if user.is_authenticated %}
+                    <li><a class="dropdown-item" href="{{ url_for('profile', user_id=user.id) }}">Your Profile</a></li>
+                    <li><a class="dropdown-item" href="{{ url_for('analytics', user_id=user.id) }}">Statistics</a></li>
+                    <li><a class="dropdown-item" href="#">Settings</a></li>
+                    <li>
+                      <hr class="dropdown-divider">
+                    </li>
+                    <li><a class="dropdown-item text-danger" href="{{ url_for('logout') }}">Logout</a></li>
+                  {% else %}
+                    <li><a class="dropdown-item" href="{{ url_for('auth') }}">Login/Signup</a></li>
+                  {% endif %}
+                </ul>
+            </div>
         </div>
     </nav>
     <div class="container">
@@ -49,15 +53,13 @@
                         <div class="sidebar-content">
                             <div class="d-flex align-items-center mb-4">
                                 <div class="bg-white rounded-circle p-2 m-2">
-                                    <img src="../images/uwa.webp" alt="UWA logo"
-                                        class="logo d-flex align-items-center justify-content-center">
+                                    <img src="../images/uwa.webp" alt="UWA logo" class="logo d-flex align-items-center justify-content-center">
                                 </div>
                                 <h4 class="mb-0 text-uwa-gold">UWA GeoGuessr</h4>
                             </div>
                             <h2 class="fw-bold mb-4">Explore and discover the UWA campus</h2>
                             <span class="badge-feature"><i class="fas fa-trophy me-2"></i> Compete with friends</span>
-                            <span class="badge-feature"><i class="fas fa-graduation-cap me-2"></i> Learn about
-                                UWA</span>
+                            <span class="badge-feature"><i class="fas fa-graduation-cap me-2"></i> Learn about UWA</span>
 
                             <div class="mt-5">
                                 <div class="d-flex align-items-center mb-3">
@@ -86,125 +88,64 @@
                     <div class="auth-form" id="formContainer">
                         <ul class="nav nav-tabs mb-4" id="myTab" role="tablist">
                             <li class="nav-item" role="presentation">
-                                <button class="nav-link active" id="login-tab" data-bs-toggle="tab"
-                                    data-bs-target="#login" type="button" role="tab" aria-controls="login"
-                                    aria-selected="true">Login</button>
+                                <button class="nav-link active" id="login-tab" data-bs-toggle="tab" data-bs-target="#login" type="button" role="tab" aria-controls="login" aria-selected="true">Login</button>
                             </li>
                             <li class="nav-item" role="presentation">
-                                <button class="nav-link" id="signup-tab" data-bs-toggle="tab" data-bs-target="#signup"
-                                    type="button" role="tab" aria-controls="signup" aria-selected="false">Sign
-                                    Up</button>
+                                <button class="nav-link" id="signup-tab" data-bs-toggle="tab" data-bs-target="#signup" type="button" role="tab" aria-controls="signup" aria-selected="false">Sign Up</button>
                             </li>
                         </ul>
                         <div class="tab-content" id="myTabContent">
-                            <div class="tab-pane fade show active" id="login" role="tabpanel"
-                                aria-labelledby="login-tab">
+                            <!-- Login Form -->
+                            <div class="tab-pane fade show active" id="login" role="tabpanel" aria-labelledby="login-tab">
                                 <h2 class="fw-bold mb-4">Welcome back!</h2>
                                 <p class="text-muted mb-4">Login to continue your UWA campus exploration journey.</p>
-
-                                <!-- Optional -->
-                                <div class="row g-3 mb-4">
-                                    <div class="col-md-6">
-                                        <div class="social-login">
-                                            <i class="fab fa-google me-2"></i> Login with Google
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <div class="social-login">
-                                            <i class="fab fa-facebook-f me-2"></i> Login with Facebook
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="divider">
-                                    <span>or login with email</span>
-                                </div>
-
-                                <form class="form-padding-bottom">
+                                <form method="POST" action="{{ url_for('login') }}">
+                                    {{ login_form.hidden_tag() }}
                                     <div class="form-floating mb-3">
-                                        <input type="email" class="form-control" id="floatingInput"
-                                            placeholder="name@example.com">
-                                        <label for="floatingInput">Email address</label>
-                                    </div>
-                                    <div class="form-floating mb-3">
-                                        <input type="password" class="form-control" id="floatingPassword"
-                                            placeholder="Password">
-                                        <label for="floatingPassword">Password</label>
-                                    </div>
-                                    <div class="d-flex justify-content-between mb-4">
-                                        <div class="form-check">
-                                            <input class="form-check-input" type="checkbox" id="rememberMe">
-                                            <label class="form-check-label" for="rememberMe">
-                                                Remember me
-                                            </label>
-                                        </div>
-                                    </div>
-                                    <button class="btn btn-uwa w-100 py-3 mb-3">Login</button>
-                                    <p class="text-center mb-0">Don't have an account? <a href="#"
-                                            class="text-decoration-none fw-bold" id="showSignup">Sign up</a></p>
-                                </form>
-                            </div>
-                            <div class="tab-pane fade" id="signup" role="tabpanel" aria-labelledby="signup-tab">
-                                <h2 class="fw-bold mb-4">Create your account</h2>
-                                <p class="text-muted mb-4">Join the UWA GeoGuessr community and start exploring!</p>
-
-                                <!-- Optional -->
-                                <div class="row g-3 mb-4">
-                                    <div class="col-md-6">
-                                        <div class="social-login">
-                                            <i class="fab fa-google me-2"></i> Sign up with Google
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <div class="social-login">
-                                            <i class="fab fa-facebook-f me-2"></i> Sign up with Facebook
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="divider">
-                                    <span>or sign up with email</span>
-                                </div>
-
-                                <form class="form-padding-bottom">
-                                    <div class="row g-3">
-                                        <div class="col-md-6">
-                                            <div class="form-floating mb-3">
-                                                <input type="text" class="form-control" id="firstName"
-                                                    placeholder="First Name">
-                                                <label for="firstName">First Name</label>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-6">
-                                            <div class="form-floating mb-3">
-                                                <input type="text" class="form-control" id="lastName"
-                                                    placeholder="Last Name">
-                                                <label for="lastName">Last Name</label>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="form-floating mb-3">
-                                        <input type="text" class="form-control" id="username" placeholder="Username">
+                                        {{ login_form.username(class="form-control", placeholder="Username") }}
                                         <label for="username">Username</label>
                                     </div>
                                     <div class="form-floating mb-3">
-                                        <input type="email" class="form-control" id="signupEmail"
-                                            placeholder="name@example.com">
-                                        <label for="signupEmail">Email address</label>
+                                        {{ login_form.password(class="form-control", placeholder="Password") }}
+                                        <label for="password">Password</label>
+                                    </div>
+                                    <button type="submit" class="btn btn-uwa w-100 py-3 mb-3">Login</button>
+                                    <p class="text-center mb-0">Don't have an account? <a href="#" class="text-decoration-none fw-bold" id="showSignup">Sign up</a></p>
+                                </form>
+                            </div>
+
+                            <!-- Signup Form -->
+                            <div class="tab-pane fade" id="signup" role="tabpanel" aria-labelledby="signup-tab">
+                                <h2 class="fw-bold mb-4">Create your account</h2>
+                                <p class="text-muted mb-4">Join the UWA GeoGuessr community and start exploring!</p>
+                                <form method="POST" action="{{ url_for('signup') }}">
+                                    {{ signup_form.hidden_tag() }}
+                                    <div class="form-floating mb-3">
+                                        {{ signup_form.first_name(class="form-control", placeholder="First Name") }}
+                                        <label for="first_name">First Name</label>
                                     </div>
                                     <div class="form-floating mb-3">
-                                        <input type="password" class="form-control" id="signupPassword"
-                                            placeholder="Password">
-                                        <label for="signupPassword">Password</label>
+                                        {{ signup_form.last_name(class="form-control", placeholder="Last Name") }}
+                                        <label for="last_name">Last Name</label>
                                     </div>
                                     <div class="form-floating mb-3">
-                                        <input type="password" class="form-control" id="confirmPassword"
-                                            placeholder="Confirm Password">
-                                        <label for="confirmPassword">Confirm Password</label>
+                                        {{ signup_form.username(class="form-control", placeholder="Username") }}
+                                        <label for="username">Username</label>
                                     </div>
-                                    <button class="btn btn-uwa w-100 py-3 mb-3">Create Account</button>
-                                    <p class="text-center mb-0">Already have an account? <a href="#"
-                                            class="text-decoration-none fw-bold" id="showLogin">Login</a></p>
+                                    <div class="form-floating mb-3">
+                                        {{ signup_form.email(class="form-control", placeholder="Email") }}
+                                        <label for="email">Email</label>
+                                    </div>
+                                    <div class="form-floating mb-3">
+                                        {{ signup_form.password(class="form-control", placeholder="Password") }}
+                                        <label for="password">Password</label>
+                                    </div>
+                                    <div class="form-floating mb-3">
+                                        {{ signup_form.confirm_password(class="form-control", placeholder="Confirm Password") }}
+                                        <label for="confirm_password">Confirm Password</label>
+                                    </div>
+                                    <button type="submit" class="btn btn-uwa w-100 py-3 mb-3">Create Account</button>
+                                    <p class="text-center mb-0">Already have an account? <a href="#" class="text-decoration-none fw-bold" id="showLogin">Login</a></p>
                                 </form>
                             </div>
                         </div>

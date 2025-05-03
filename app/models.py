@@ -3,6 +3,8 @@ import sqlalchemy as sa
 import sqlalchemy.orm as so
 from datetime import datetime 
 from app import db
+from werkzeug.security import generate_password_hash, check_password_hash
+from flask_login import UserMixin
 
 class User(db.Model):
     __tablename__ = "user"
@@ -15,6 +17,12 @@ class User(db.Model):
     last_name: so.Mapped[str] = so.mapped_column(sa.String(120), nullable=False)
 
     friends: so.WriteOnlyMapped["Friend"] = so.relationship("Friend", back_populates="user", foreign_keys="[Friend.user_id]")
+
+    def set_password(self, password):
+        self.password_hash = generate_password_hash(password)
+    
+    def check_password(self, password):
+        return check_password_hash(self.password_hash, password)
 
 class Friend(db.Model):
     __tablename__ = "friend"

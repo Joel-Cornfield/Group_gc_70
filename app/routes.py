@@ -66,14 +66,14 @@ def submit_game():
     db.session.commit()
     return jsonify({'message': 'Game data submitted successfully!'})
 
-# Login Page (Example)
+# Auth Page 
 @app.route('/auth')
 def auth():
     login_form = LoginForm()
     registration_form = RegistrationForm()
     return render_template('auth.html', user=current_user, login_form=login_form, signup_form=registration_form)
 
-# Login Form Submission (Example)
+# Login Form Submission 
 @app.route('/auth/login', methods=['GET', 'POST'])
 def login():
     if current_user.is_authenticated:
@@ -87,7 +87,7 @@ def login():
         flash('Invalid username or password', 'danger')
     return render_template('auth.html', form=form, tab='login')
 
-# Registration Form Submission (Example)
+# Registration Form Submission 
 @app.route('/auth/signup', methods=['GET', 'POST'])
 def signup():
     if current_user.is_authenticated:

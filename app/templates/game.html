@@ -11,8 +11,8 @@
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
   <!-- Stylesheets -->
-  <link rel="stylesheet" href="../styles/game.css">
-  <link rel="stylesheet" href="../styles/navbar.css">
+  <link href="{{ url_for('static', filename='styles/game.css') }}" rel="stylesheet">
+  <link href="{{ url_for('static', filename='styles/navbar.css') }}" rel="stylesheet">
 
 </head>
 
@@ -33,13 +33,17 @@
           <img src="{{ user.profile_picture or url_for('static', filename='images/defaultprofile.png') }}" alt="Profile Avatar" class="avatar-img">
         </a>
         <ul class="dropdown-menu dropdown-menu-end">
-          <li><a class="dropdown-item" href="{{ url_for('profile') }}">Your Profile</a></li>
-          <li><a class="dropdown-item" href="{{ url_for('analytics') }}">Statistics</a></li>
-          <li><a class="dropdown-item" href="#">Settings</a></li>
-          <li>
-            <hr class="dropdown-divider">
-          </li>
-          <li><a class="dropdown-item text-danger" href="{{ url_for('logout') }}">Logout</a></li>
+          {% if user.is_authenticated %}
+            <li><a class="dropdown-item" href="{{ url_for('profile', user_id=user.id) }}">Your Profile</a></li>
+            <li><a class="dropdown-item" href="{{ url_for('analytic_page', user_id=user.id) }}">Statistics</a></li>
+            <li><a class="dropdown-item" href="#">Settings</a></li>
+            <li>
+              <hr class="dropdown-divider">
+            </li>
+            <li><a class="dropdown-item text-danger" href="{{ url_for('logout') }}">Logout</a></li>
+          {% else %}
+            <li><a class="dropdown-item" href="{{ url_for('auth') }}">Login/Signup</a></li>
+          {% endif %}
         </ul>
       </div>
     </div>
@@ -89,7 +93,8 @@
     </div>
   </div>
 
-  <script src="../scripts/game.js"></script>
+  <script src="{{ url_for('static', filename='scripts/game.js') }}"></script>
+  
 </body>
 
 </html>

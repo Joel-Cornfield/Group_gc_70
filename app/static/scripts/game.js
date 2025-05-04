@@ -31,7 +31,7 @@ let secondsElapsed = 0;
 
 // Initialize Map Background
 const img = new Image();
-img.src = '../images/UWA_map.jpg';
+img.src = 'static/images/UWA_map.jpg';
 img.onload = () => {
   initializeMap(img);
 };
@@ -112,11 +112,11 @@ function initializeMap(image) {
 }
 
 function loadRandomLocation() {
-  fetch('../locations.json')
+  fetch('/static/locations.json')
     .then((response) => response.json())
     .then((locations) => {
       const randomLocation = locations[Math.floor(Math.random() * locations.length)];
-      guessImage.src = `../images/${randomLocation.name.split(' ').join('_')}.jpg`;
+      guessImage.src = `/static/images/${randomLocation.name.split(' ').join('_')}.jpg`;
       console.log(`Loaded image: ${guessImage.src}`);
       console.log(`Loaded location: ${randomLocation.name}`);
       answerLat = randomLocation.latitude;

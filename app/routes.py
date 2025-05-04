@@ -78,34 +78,35 @@ def auth():
 def login():
     if current_user.is_authenticated:
         return redirect(url_for('home'))
-    form = LoginForm()
-    if form.validate_on_submit():
-        user = User.query.filter_by(username=form.username.data).first()
-        if user and user.check_password(form.password.data):
+    login_form = LoginForm()
+    signup_form = RegistrationForm()
+    if login_form.validate_on_submit():
+        user = User.query.filter_by(username=login_form.username.data).first()
+        if user and user.check_password(login_form.password.data):
             login_user(user)
             return redirect(url_for('home'))
         flash('Invalid username or password', 'danger')
-    return render_template('auth.html', form=form, tab='login')
+    return render_template('auth.html', user=current_user, login_form=login_form, signup_form = signup_form, tab='login')
 
 # Registration Form Submission 
 @app.route('/auth/signup', methods=['GET', 'POST'])
 def signup():
     if current_user.is_authenticated:
         return redirect(url_for('home'))
-    form = RegistrationForm()
-    if form.validate_on_submit():
+    signup_form = RegistrationForm()
+    if signup_form.validate_on_submit():
         user = User(
-            username=form.username.data,
-            email=form.email.data,
-            first_name=form.first_name.data,
-            last_name=form.last_name.data
+            username=signup_form.username.data,
+            email=signup_form.email.data,
+            first_name=signup_form.first_name.data,
+            last_name=signup_form.last_name.data
         )
-        user.set_password(form.password.data)
+        user.set_password(signup_form.password.data)
         db.session.add(user)
         db.session.commit()
         flash('Account created successfully!', 'success')
         return redirect(url_for('login'))
-    return render_template('auth.html', form=form, tab='signup')
+    return render_template('auth.html', signup_form=signup_form, tab='signup')
 
 # Logout (Example)
 @app.route('/auth/logout')

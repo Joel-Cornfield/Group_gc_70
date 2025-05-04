@@ -33,7 +33,7 @@
             <ul class="dropdown-menu dropdown-menu-end">
               {% if user.is_authenticated %}
                 <li><a class="dropdown-item" href="{{ url_for('profile', user_id=user.id) }}">Your Profile</a></li>
-                <li><a class="dropdown-item" href="{{ url_for('analytics', user_id=user.id) }}">Statistics</a></li>
+                <li><a class="dropdown-item" href="{{ url_for('analytic_page', user_id=user.id) }}">Statistics</a></li>
                 <li><a class="dropdown-item" href="#">Settings</a></li>
                 <li>
                   <hr class="dropdown-divider">

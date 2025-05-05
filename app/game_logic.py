@@ -42,10 +42,12 @@ def process_guess(game_id, user_id, data):
         return {'error': 'Invalid game ID'}, 400
 
     # Calculate distance
-    actual_lat = game.actual_latitude  # Use dot notation
-    actual_lng = game.actual_longitude  # Use dot notation
+    actual_lat = game.actual_latitude
+    actual_lng = game.actual_longitude
+    
     guessed_lat = data['guessed_latitude']
     guessed_lng = data['guessed_longitude']
+    print(f"Actual: ({actual_lat}, {actual_lng}), Guessed: ({guessed_lat}, {guessed_lng})")
     distance = haversine_distance(actual_lat, actual_lng, guessed_lat, guessed_lng)
 
     # Add a new LocationGuess entry

@@ -63,3 +63,27 @@ class Stats(db.Model):
     total_games = db.Column(db.Integer, nullable=True)
     time_spent = db.Column(db.Integer, nullable=False)
     start_date = db.Column(db.DateTime, nullable=False)
+
+class Location(db.Model):
+    __tablename__ = "location"
+
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(255), nullable=False)
+    latitude = db.Column(db.Float, nullable=False)
+    longitude = db.Column(db.Float, nullable=False)
+    department = db.Column(db.String(255), nullable=True)
+    hints = db.relationship("Hint", back_populates="location", cascade="all, delete-orphan")
+
+    def __repr__(self):
+        return f"<Location {self.name}>"
+
+class Hint(db.Model):
+    __tablename__ = "hint"
+
+    id = db.Column(db.Integer, primary_key=True)
+    location_id = db.Column(db.Integer, db.ForeignKey("location.id", ondelete="CASCADE"), nullable=False)
+    text = db.Column(db.String(255), nullable=False)
+    location = db.relationship("Location", back_populates="hints")
+
+    def __repr__(self):
+        return f"<Hint {self.text}>"

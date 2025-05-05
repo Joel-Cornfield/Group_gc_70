@@ -150,10 +150,11 @@ function fetchGameState() {
 
 // Submit a guess to the /guess route
 function submitGuess() {
+  let guess_coords = imageCoordsToLatLng(guessX, guessY);
   const guessData = {
     game_id: gameId,
-    guessed_latitude: guessX, // Replace with actual guessed latitude
-    guessed_longitude: guessY // Replace with actual guessed longitude
+    guessed_latitude: guess_coords.lat,
+    guessed_longitude: guess_coords.lng
   };
 
   fetch('/guess', {
@@ -203,7 +204,48 @@ function submitGuess() {
 // End the game
 function endGame() {
   submitButton.disabled = true;
-  hintText.textContent = 'Game Over!';
+  if (hintText.textContent !== 'Got it!') {
+    hintText.textContent = 'Game Over!';
+  }
+  clearInterval(timerInterval); // Stop the timer
+
+  // Dynamically create the "Start New Game" button
+  const newGameButton = document.createElement('button');
+  newGameButton.classList.add('btn', 'btn-success', 'mx-2');
+  newGameButton.id = 'newGameButton';
+  newGameButton.textContent = 'Start New Game';
+
+  // Add click event listener to start a new game
+  newGameButton.addEventListener('click', () => {
+    resetGame();
+    fetchGameState();
+  });
+
+  // Append the button next to the "Submit Guess" button
+  submitButton.parentElement.appendChild(newGameButton);
+}
+
+// Reset the game state
+function resetGame() {
+  // Reset guess squares
+  hintSquares.forEach((square) => {
+    square.textContent = '⬛';
+  });
+
+  // Reset hint text
+  hintText.textContent = 'Make your first guess to get a hint';
+
+  // Enable the "Submit Guess" button
+  submitButton.disabled = false;
+
+  // Remove the "Start New Game" button if it exists
+  const newGameButton = document.getElementById('newGameButton');
+  if (newGameButton) {
+    newGameButton.remove();
+  }
+
+  // Reset the timer
+  resetTimer();
 }
 
 // Event Listeners

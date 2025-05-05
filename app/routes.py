@@ -3,7 +3,7 @@ import json
 from flask import render_template, redirect, url_for, flash, request, jsonify 
 from flask_login import login_user, logout_user, login_required, current_user
 from app.forms import LoginForm, RegistrationForm
-from app.models import User, Stats, Game, LocationGuess
+from app.models import User, Game, Stats, Location, Hint
 from app import db, app
 from app.game_logic import process_guess
 
@@ -26,19 +26,13 @@ def game():
 @app.route('/play', methods=['GET'])
 def play():
     # Load locations from the JSON file
-    locations_file = os.path.join(app.static_folder, 'locations.json')
-    with open(locations_file, 'r') as file:
-        locations = json.load(file)
-
-    # Select a random location
-    import random
-    random_location = random.choice(locations)
+    location = Location.query.order_by(db.func.random()).first()
 
     # Create a new game entry
     game = Game(
-        actual_latitude=random_location['latitude'],
-        actual_longitude=random_location['longitude'],
-        location_name=random_location['name']
+        actual_latitude=location.latitude,
+        actual_longitude=location.longitude,
+        location_name=location.name
     )
     if current_user.is_authenticated:
         game.user_id = current_user.id
@@ -49,9 +43,7 @@ def play():
     # Return game data as JSON
     return jsonify({
         'game_id': game.id,
-        'guess_image': url_for('static', filename=f'images/{random_location["name"].replace(" ", "_")}.jpg'),
-        'latitude': random_location['latitude'],
-        'longitude': random_location['longitude']
+        'guess_image': url_for('static', filename=f'images/{location.name.replace(" ", "_")}.jpg'),
     })
 
 @app.route('/guess', methods=['POST'])

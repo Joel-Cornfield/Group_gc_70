@@ -34,29 +34,23 @@ class LocationGuess(db.Model):
     __tablename__ = "location_guess"
 
     id = db.Column(db.Integer, primary_key=True)
-    game_history_id = db.Column(db.Integer, db.ForeignKey("game_history.id", ondelete="CASCADE", name="fk_location_guess_game_history_id"), nullable=False)
-    location_name = db.Column(db.String(255), nullable=False)
-    actual_latitude = db.Column(db.Float, nullable=False)
-    actual_longitude = db.Column(db.Float, nullable=False)
-    guessed_latitude = db.Column(db.Float, nullable=False)
-    guessed_longitude = db.Column(db.Float, nullable=False)
+    game_id = db.Column(db.Integer, db.ForeignKey("game.id", ondelete="CASCADE", name="fk_location_guess_game_id"), nullable=False)
     distance_error_meters = db.Column(db.Float, nullable=False)
-    time_taken_seconds = db.Column(db.Integer, nullable=False)
+    guess_time = db.Column(db.DateTime, server_default=db.func.now())
+    game = db.relationship("Game", back_populates="guesses")
 
-    game_history = db.relationship("GameHistory", back_populates="guesses")
-
-class GameHistory(db.Model):
-    __tablename__ = "game_history"
+class Game(db.Model):
+    __tablename__ = "game"
 
     id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey("user.id", ondelete="CASCADE", name="fk_game_history_user_id"), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey("user.id", ondelete="CASCADE", name="fk_game_user_id"), nullable=True)
     start_time = db.Column(db.DateTime, server_default=db.func.now())
     finish_time = db.Column(db.DateTime, nullable=True)
     total_score = db.Column(db.Integer, default=0)
-    locations_guessed = db.Column(db.Integer, default=0)
-    correct_guesses = db.Column(db.Integer, default=0)
-
-    guesses = db.relationship("LocationGuess", back_populates="game_history", cascade="all, delete-orphan")
+    location_name = db.Column(db.String(255), nullable=False)
+    actual_latitude = db.Column(db.Float, nullable=False)
+    actual_longitude = db.Column(db.Float, nullable=False)
+    guesses = db.relationship("LocationGuess", back_populates="game", cascade="all, delete-orphan")
 
 class Stats(db.Model):
     __tablename__ = "stats"

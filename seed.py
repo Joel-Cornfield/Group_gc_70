@@ -1,5 +1,5 @@
 from app import app, db
-from app.models import User, GameHistory, Stats
+from app.models import User, Game, Stats
 from datetime import datetime
  
 # Initialize the app context
@@ -14,11 +14,6 @@ with app.app_context():
     db.session.add(user1)
     db.session.add(user2)
  
-    # Seed GameHistory
-    game1 = GameHistory(user_id=1, guess_location="Octagon Theatre", guess_time=datetime.strptime("2025-04-23 10:00:00", "%Y-%m-%d %H:%M:%S"), result="Win", time_finished=120)
-    game2 = GameHistory(user_id=2, guess_location="Winthrop Hall", guess_time=datetime.strptime("2025-04-23 10:00:05", "%Y-%m-%d %H:%M:%S"), result="Lose", time_finished=150)
-    db.session.add(game1)
-    db.session.add(game2)
  
     # Seed Stats
     stats1 = Stats(user_id=1, win_streak=3, total_wins=10, win_percentage=75.0, total_games=15, time_spent=3600, start_date=datetime.strptime("2025-01-01", "%Y-%m-%d"))
@@ -34,11 +29,6 @@ with app.app_context():
     print("Users:")
     for user in users:
         print(f"ID: {user.id}, Username: {user.username}, Email: {user.email}")
- 
-    game_histories = GameHistory.query.all()
-    print("\nGame Histories:")
-    for game in game_histories:
-        print(f"User ID: {game.user_id}, Location: {game.guess_location}, Result: {game.result}, Time Finished: {game.time_finished}")
  
     stats = Stats.query.all()
     print("\nStats:")

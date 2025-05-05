@@ -1,8 +1,11 @@
+import os
+import json
 from flask import render_template, redirect, url_for, flash, request, jsonify 
 from flask_login import login_user, logout_user, login_required, current_user
 from app.forms import LoginForm, RegistrationForm
-from app.models import User, Stats, GameHistory, LocationGuess
+from app.models import User, Stats, Game, LocationGuess
 from app import db, app
+from app.game_logic import process_guess
 
 """
 This file contains the route definitions for the Flask application. Almost all of these endpoints are skeletolns and are not fully implemented yet.
@@ -19,6 +22,45 @@ def home():
 @app.route('/game')
 def game():
     return render_template('game.html', user=current_user)
+
+@app.route('/play', methods=['GET'])
+def play():
+    # Load locations from the JSON file
+    locations_file = os.path.join(app.static_folder, 'locations.json')
+    with open(locations_file, 'r') as file:
+        locations = json.load(file)
+
+    # Select a random location
+    import random
+    random_location = random.choice(locations)
+
+    # Create a new game entry
+    game = Game(
+        actual_latitude=random_location['latitude'],
+        actual_longitude=random_location['longitude'],
+        location_name=random_location['name']
+    )
+    if current_user.is_authenticated:
+        game.user_id = current_user.id
+
+    db.session.add(game)
+    db.session.commit()
+
+    # Return game data as JSON
+    return jsonify({
+        'game_id': game.id,
+        'guess_image': url_for('static', filename=f'images/{random_location["name"].replace(" ", "_")}.jpg'),
+        'latitude': random_location['latitude'],
+        'longitude': random_location['longitude']
+    })
+
+@app.route('/guess', methods=['POST'])
+def guess():
+    data = request.json
+    if current_user.is_authenticated:
+        return jsonify(process_guess(data['game_id'], current_user.id, data))
+    else:
+        return jsonify(process_guess(data['game_id'], None, data))
 
 # How to Play Page
 @app.route('/howtoplay')

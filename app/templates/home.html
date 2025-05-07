@@ -26,7 +26,9 @@
     <div class="ms-auto d-flex align-items-center">
       <a class="nav-link text-white mx-2" href="{{ url_for('home') }}">Home</a>
       <a class="nav-link text-white mx-2" href="{{ url_for('game') }}">Game</a>
-      <a class="nav-link text-white mx-2" href="{{ url_for('auth') }}">Login/Signup</a>
+      {% if not user.is_authenticated %}
+        <a class="nav-link text-white mx-2" href="{{ url_for('auth') }}">Login/Signup</a>
+      {% endif %}
       <div class="dropdown">
         <a class="nav-link dropdown-toggle d-flex align-items-center mx-2" href="#" role="button" data-bs-toggle="dropdown">
           <img src="{{ user.profile_picture or url_for('static', filename='images/defaultprofile.png') }}" alt="Profile Avatar" class="avatar-img">

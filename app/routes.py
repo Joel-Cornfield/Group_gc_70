@@ -3,7 +3,7 @@ import json
 from flask import render_template, redirect, url_for, flash, request, jsonify 
 from flask_login import login_user, logout_user, login_required, current_user
 from app.forms import LoginForm, RegistrationForm
-from app.models import User, Game, Stats, Location, Hint
+from app.models import User, Game, Stats, Location, Hint, Friend
 from app import db, app
 from app.game_logic import process_guess
 
@@ -181,6 +181,86 @@ def signup():
 def logout():
     logout_user()
     return redirect(url_for('auth'))
+
+# Fetch the current user's friends
+@app.route('/api/friends', methods=['GET'])
+@login_required
+def get_friends():
+    friends = Friend.query.filter(
+        ((Friend.user_id == current_user.id) | (Friend.friend_id == current_user.id)) &
+        (Friend.status == "accepted")
+    ).all()
+    friends_list = [
+        {
+            'id': friend.friend_id if friend.user_id == current_user.id else friend.user_id,
+            'name': User.query.get(friend.friend_id).username,
+            'profile_picture': url_for('static', filename='images/default_profile.png') # Placeholder 
+        }
+        for friend in friends
+    ]
+    return jsonify(friends_list)
+
+# Add a new friend
+@app.route('/api/friends/add', methods=['POST'])
+@login_required
+def add_friend():
+    data = request.json
+    friend_username = data.get('username')
+
+    # Check if the user exists
+    friend = User.query.filter_by(username=friend_username).first()
+    if not friend:
+        return jsonify({'error': 'User not found'}), 404
+
+    # Check if the friend relationship already exists
+    existing_friend = Friend.query.filter_by(user_id=current_user.id, friend_id=friend.id).first()
+    if existing_friend:
+        return jsonify({'error': 'Friend already added'}), 400
+
+    # Create a new friend request with status "pending"
+    new_friend_request = Friend(user_id=current_user.id, friend_id=friend.id, status="pending")
+    db.session.add(new_friend_request)
+    db.session.commit()
+
+    return jsonify({'message': f'Friend request sent to {friend_username} !'})
+
+# Fetch pending friend requests
+@app.route('/api/friends/requests', methods=['GET'])
+@login_required
+def get_friend_requests():
+    requests = Friend.query.filter_by(friend_id=current_user.id, status="pending").all()
+    requests_list = [
+        {
+            'id': request.id,
+            'name': User.query.get(request.user_id).username,
+            'profile_picture': url_for('static', filename='images/default_profile.png')  # Placeholder
+        }
+        for request in requests
+    ]
+    return jsonify(requests_list)
+
+# Accept a friend request 
+@app.route('/api/friends/accept', methods=['POST'])
+@login_required
+def accept_friend_request():
+    data = request.json
+    request_id = data.get('request_id')
+
+    # Find the friend request
+    friend_request = Friend.query.filter_by(id=request_id, friend_id=current_user.id, status="pending").first()
+    if not friend_request:
+        return jsonify({'error': 'Friend request not found'}), 404
+
+    # Update the status to accepted
+    friend_request.status = "accepted"
+
+    # Create reciprocal friend relationship 
+    reciprocal_friend = Friend(user_id=current_user.id, friend_id=friend_request.user_id, status="accepted")
+    db.session.add(reciprocal_friend)
+
+    db.session.commit()
+
+    return jsonify({'message': 'Friend request accepted!'})
 
 
 # Error Handlers (Example)

@@ -78,7 +78,21 @@ def get_hint(game_id):
     # Select a random hint
     hint = random.choice(hints).text
     game.total_score = max(0, game.total_score-10)  # Deduct score for hint usage
+    db.session.commit()
     return jsonify({'hint': hint,'score': game.total_score})
+
+
+@app.route('/unblur/<int:game_id>', methods=['POST'])
+def unblur(game_id):
+    # Fetch the game
+    game = Game.query.get(game_id)
+    if not game:
+        return jsonify({'error': 'Invalid game ID'}), 400
+    
+    game.total_score = max(0, game.total_score-20)  # Deduct score for unblur usage
+    db.session.commit()
+    return jsonify({'score': game.total_score})
+    
 
 # How to Play Page
 @app.route('/howtoplay')

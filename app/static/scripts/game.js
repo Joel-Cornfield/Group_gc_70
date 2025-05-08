@@ -6,8 +6,11 @@ const timerElement = document.getElementById('timer');
 const guessImage = document.getElementById('guess-image');
 const revealButton = document.getElementById('reveal-button');
 const hintText = document.getElementById('hint-text');
+const hintDisplay = document.getElementById('hint-display');
 const hintSquares = [document.getElementById('guess-1'), document.getElementById('guess-2'), document.getElementById('guess-3')];
 const submitButton = document.getElementById('submitGuess');
+const totalScoreElement = document.getElementById('totalScore');
+
 
 // State Variables
 let zoom = 0.5;
@@ -23,6 +26,7 @@ let guessY = 0;
 let gameId = null;
 let secondsElapsed = 0;
 let timerInterval = null;
+let receivedHintIds = [];
 
 // Functions
 
@@ -138,6 +142,21 @@ function fetchGameState() {
       guessImage.src = data.guess_image;
       guessImage.classList.remove('hidden');
       revealButton.classList.add('hidden');
+      totalScoreElement.textContent = `100`;
+
+      // Dynamically create the "Reveal Hint" button
+      const revealHintButton = document.createElement('button');
+      revealHintButton.classList.add('btn', 'btn-warning', 'mx-2');
+      revealHintButton.id = 'revealHint';
+      revealHintButton.textContent = 'Reveal Hint (-10 p)';
+
+      // Add click event listener to start a new game
+      revealHintButton.addEventListener('click', () => {
+        fetchHint();
+      });
+
+      // Append the button next to the "Submit Guess" button
+      submitButton.parentElement.appendChild(revealHintButton);
 
       // Reset timer
       resetTimer();
@@ -171,12 +190,17 @@ function submitGuess() {
         console.error('No guesses returned from the server.');
         return;
       }
+      if (data.guesses.length > 3) {
+        console.error('Too many guesses.');
+        endGame();
+        return;
+      }
 
       // Get the last guess
       const lastGuess = data.guesses[data.guesses.length - 1];
       const feedback = getFeedback(lastGuess.distance_error_meters);
       hintText.textContent = feedback;
-
+      totalScoreElement.textContent = `${data.score}`;
       // Update guess squares
       const guesses = data.guesses.length;
       for (let i = 0; i < hintSquares.length; i++) {
@@ -199,6 +223,39 @@ function submitGuess() {
       }
     })
     .catch((error) => console.error('Error submitting guess:', error));
+}
+
+function fetchHint() {
+  fetch(`/hint/${gameId}`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ received_hint_ids: receivedHintIds }) // Send received hint IDs
+  })
+    .then((response) => response.json())
+    .then((data) => {
+      console.log('Hint response:', data);
+      if (data.error) {
+        console.error(data.error);
+        const hintParagraph = document.createElement('p');
+        hintParagraph.textContent = 'No more hints available.';
+        hintDisplay.appendChild(hintParagraph);
+        const revealHintButton = document.getElementById('revealHint');
+        revealHintButton.disabled = true; // Disable the button if no new hints are available
+        return;
+      }
+
+      // Display the hint
+      const hintParagraph = document.createElement('p');
+      hintParagraph.textContent = data.hint;
+      hintDisplay.appendChild(hintParagraph);
+
+      // Add the hint ID to the list of received hints
+      receivedHintIds.push(data.hint.id);
+
+      // Reduce the total score by 15
+      totalScoreElement.textContent = data.score;
+    })
+    .catch((error) => console.error('Error fetching hint:', error));
 }
 
 // End the game

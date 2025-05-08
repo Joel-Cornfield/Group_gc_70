@@ -60,7 +60,7 @@
 
         <div class="leaderboard">
             <h2>🏅 Total Wins</h2>
-            {% for entry in total_wins_leaderboard 8%}
+            {% for entry in total_wins_leaderboard %}
             <div class="entry"><span class="player">{{ entry.player }}</span><span class="value">{{ entry.value }}</span></div>
             {% endfor %}
         </div>

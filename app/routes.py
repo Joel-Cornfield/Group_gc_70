@@ -1,5 +1,4 @@
-import os
-import json
+import random
 from flask import render_template, redirect, url_for, flash, request, jsonify 
 from flask_login import login_user, logout_user, login_required, current_user
 from app.forms import LoginForm, RegistrationForm
@@ -32,7 +31,8 @@ def play():
     game = Game(
         actual_latitude=location.latitude,
         actual_longitude=location.longitude,
-        location_name=location.name
+        location_name=location.name,
+        total_score=100
     )
     if current_user.is_authenticated:
         game.user_id = current_user.id
@@ -53,6 +53,32 @@ def guess():
         return jsonify(process_guess(data['game_id'], current_user.id, data))
     else:
         return jsonify(process_guess(data['game_id'], None, data))
+
+@app.route('/hint/<int:game_id>', methods=['POST'])
+def get_hint(game_id):
+    # Fetch the game
+    game = Game.query.get(game_id)
+    if not game:
+        return jsonify({'error': 'Invalid game ID'}), 400
+
+    # Fetch the location associated with the game
+    location = Location.query.filter_by(name=game.location_name).first()
+    if not location:
+        return jsonify({'error': 'Location not found'}), 404
+
+    # Get the list of already-received hint IDs from the client
+    data = request.json
+    received_hint_ids = data.get('received_hint_ids', [])
+    
+    # Fetch hints for the current location
+    hints = Hint.query.filter(Hint.location_id == location.id, ~Hint.id.in_(received_hint_ids)).all()
+    if not hints:
+        return jsonify({'error': 'No hints available for this location'}), 404
+
+    # Select a random hint
+    hint = random.choice(hints).text
+    game.total_score = max(0, game.total_score-10)  # Deduct score for hint usage
+    return jsonify({'hint': hint,'score': game.total_score})
 
 # How to Play Page
 @app.route('/howtoplay')
@@ -90,7 +116,7 @@ def get_user(user_id):
 @app.route('/api/submit_game', methods=['POST'])
 def submit_game():
     data = request.json
-    game = GameHistory(
+    game = Game(
         user_id=data['user_id'],
         total_score=data['total_score'],
         locations_guessed=data['locations_guessed'],

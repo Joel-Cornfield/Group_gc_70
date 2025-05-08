@@ -131,7 +131,7 @@ def submit_game():
 def auth():
     login_form = LoginForm()
     registration_form = RegistrationForm()
-    return render_template('auth.html', user=current_user, login_form=login_form, signup_form=registration_form)
+    return render_template('auth.html', user=current_user, login_form=login_form, signup_form=registration_form, tab='login')
 
 # Login Form Submission 
 @app.route('/auth/login', methods=['GET', 'POST'])
@@ -144,9 +144,10 @@ def login():
         user = User.query.filter_by(username=login_form.username.data).first()
         if user and user.check_password(login_form.password.data):
             login_user(user)
+            flash('Logged in successfully!', 'success')
             return redirect(url_for('home'))
-        flash('Invalid username or password', 'danger')
-    return render_template('auth.html', user=current_user, login_form=login_form, signup_form = signup_form, tab='login')
+        flash('Invalid username or password', 'danger')  
+    return render_template('auth.html', user=current_user, login_form=login_form, signup_form=signup_form, tab='login')
 
 # Registration Form Submission 
 @app.route('/auth/signup', methods=['GET', 'POST'])
@@ -155,6 +156,21 @@ def signup():
         return redirect(url_for('home'))
     signup_form = RegistrationForm()
     if signup_form.validate_on_submit():
+        # Check if email or username already exists
+        existing_user = User.query.filter(
+            (User.email == signup_form.email.data) | (User.username == signup_form.username.data)
+        ).first()
+        if existing_user:
+            flash('Email or username already exists. Please choose a different one.', 'danger')
+            return render_template(
+                'auth.html',
+                user=current_user,
+                signup_form=signup_form,
+                login_form=LoginForm(),
+                tab='signup'  # Stay on the signup tab
+            )
+
+        # Create a new user
         user = User(
             username=signup_form.username.data,
             email=signup_form.email.data,
@@ -162,13 +178,30 @@ def signup():
             last_name=signup_form.last_name.data
         )
         user.set_password(signup_form.password.data)
-        db.session.add(user)
-        db.session.commit()
-        flash('Account created successfully!', 'success')
-        return redirect(url_for('login'))
-    return render_template('auth.html', signup_form=signup_form, tab='signup')
+        try:
+            db.session.add(user)
+            db.session.commit()
+            flash('Account created successfully!', 'success')
+            return redirect(url_for('login'))
+        except Exception as e:
+            db.session.rollback()
+            flash('An error occurred while creating your account. Please try again.', 'danger')
+            return render_template(
+                'auth.html',
+                user=current_user,
+                signup_form=signup_form,
+                login_form=LoginForm(),
+                tab='signup' 
+            )
+    return render_template(
+        'auth.html',
+        user=current_user,
+        signup_form=signup_form,
+        login_form=LoginForm(),
+        tab='signup'  # Stay on the signup tab
+    )
 
-# Logout (Example)
+# Logout 
 @app.route('/auth/logout')
 @login_required
 def logout():

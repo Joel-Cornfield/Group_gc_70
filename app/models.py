@@ -30,6 +30,8 @@ class Friend(db.Model):
     status = db.Column(db.String(20), nullable=False, default="pending")
 
     user = db.relationship("User", back_populates="friends", foreign_keys=[user_id])
+    friend = db.relationship("User", foreign_keys=[friend_id])
+
 
 class LocationGuess(db.Model):
     __tablename__ = "location_guess"

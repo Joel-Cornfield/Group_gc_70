@@ -186,18 +186,29 @@ def logout():
 @app.route('/api/friends', methods=['GET'])
 @login_required
 def get_friends():
+    # Fetch all friends where the current user is either the sender or the recipient
     friends = Friend.query.filter(
         ((Friend.user_id == current_user.id) | (Friend.friend_id == current_user.id)) &
         (Friend.status == "accepted")
     ).all()
-    friends_list = [
-        {
-            'id': friend.friend_id if friend.user_id == current_user.id else friend.user_id,
-            'name': User.query.get(friend.friend_id).username,
-            'profile_picture': url_for('static', filename='images/default_profile.png') # Placeholder 
-        }
-        for friend in friends
-    ]
+
+    # Use a set to track unique friend IDs
+    unique_friend_ids = set()
+    friends_list = []
+
+    for friend in friends:
+        # Determine the friend's ID (exclude the current user)
+        friend_id = friend.friend_id if friend.user_id == current_user.id else friend.user_id
+
+        # Add to the list only if not already added
+        if friend_id not in unique_friend_ids:
+            unique_friend_ids.add(friend_id)
+            friends_list.append({
+                'id': friend_id,
+                'name': User.query.get(friend_id).username,
+                'profile_picture': url_for('static', filename='images/default_profile.png')  # Placeholder
+            })
+
     return jsonify(friends_list)
 
 # Add a new friend
@@ -232,7 +243,7 @@ def get_friend_requests():
     requests_list = [
         {
             'id': request.id,
-            'name': User.query.get(request.user_id).username,
+            'name': request.user.username,
             'profile_picture': url_for('static', filename='images/default_profile.png')  # Placeholder
         }
         for request in requests

@@ -14,13 +14,14 @@ document.addEventListener('DOMContentLoaded', function () {
                 friendsCount.textContent = data.length;
 
                 data.forEach(friend => {
+                    console.log(friend); // Debugging: Check the friend object
                     const listItem = document.createElement('li');
                     listItem.classList.add('list-group-item', 'd-flex', 'justify-content-between', 'align-items-center');
                     listItem.innerHTML = `
                         <div class="d-flex align-items-center">
                             <img src="${friend.profile_picture}" alt="Friend Avatar" class="me-3" style="width: 45px; height: 45px; border-radius: 50%;">
                             <div>
-                                <span class="fw-medium">${friend.name}</span>
+                                <a href="/analyticpage/${friend.id}" class="fw-medium">${friend.name}</a>
                             </div>
                         </div>
                     `;

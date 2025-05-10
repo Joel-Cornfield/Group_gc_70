@@ -65,14 +65,27 @@ def how_to_play():
 def profile(user_id):
     user = User.query.get_or_404(user_id)
     stats = Stats.query.filter_by(user_id=user_id).first()
+
     return render_template('profile.html', user=current_user, stats=stats)
 
 # Leaderboard/Statistics Page (Example, would need more info)
-@app.route('/analyticpage')
-@login_required 
-def analytic_page():
-    stats = Stats.query.order_by(Stats.total_wins.desc()).all()
-    return render_template('analyticpage.html', user=current_user, stats=stats)
+@app.route('/analyticpage/<int:user_id>')
+@login_required
+def analytic_page(user_id):
+    user = User.query.get_or_404(user_id)
+    stats = Stats.query.filter_by(user_id=user_id).first()
+
+    # Check if the current user is the owner or a friend
+    is_friend = Friend.query.filter(
+        ((Friend.user_id == current_user.id) & (Friend.friend_id == user_id) & (Friend.status == "accepted")) |
+        ((Friend.user_id == user_id) & (Friend.friend_id == current_user.id) & (Friend.status == "accepted"))
+    ).first()
+
+    if user_id != current_user.id and not is_friend:
+        flash("You are not authorized to view this analytics page.", "danger")
+        return redirect(url_for('home'))
+
+    return render_template('analyticpage.html', user=user, stats=stats)
 
 # API Endpoint: Get User Data (Example)
 @app.route('/api/user/<int:user_id>', methods=['GET'])

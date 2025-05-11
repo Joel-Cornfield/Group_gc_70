@@ -38,6 +38,9 @@
             <li><a class="dropdown-item" href="{{ url_for('profile', user_id=user.id) }}">Your Profile</a></li>
             <li><a class="dropdown-item" href="{{ url_for('analytic_page', user_id=user.id) }}">Statistics</a></li>
             <li><a class="dropdown-item" href="#">Settings</a></li>
+            {% if user.is_authenticated and user.admin %}
+              <a class="dropdown-item" href="{{ url_for('admin_page') }}">Admin</a>
+            {% endif %}
             <li>
               <hr class="dropdown-divider">
             </li>

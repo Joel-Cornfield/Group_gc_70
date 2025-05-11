@@ -28,6 +28,9 @@
           {% if not user.is_authenticated %}
             <a class="nav-link text-white mx-2" href="{{ url_for('auth') }}">Login/Signup</a>
           {% endif %}
+          {% if user.is_authenticated and user.admin %}
+            <a class="nav-link text-white mx-2" href="{{ url_for('admin_page') }}">Admin</a>
+          {% endif %}
           <div class="dropdown">
             <a class="nav-link dropdown-toggle d-flex align-items-center mx-2" href="#" role="button" data-bs-toggle="dropdown">
               <img src="{{ user.profile_picture or url_for('static', filename='images/defaultprofile.png') }}" alt="Profile Avatar" class="avatar-img">
@@ -37,6 +40,9 @@
                 <li><a class="dropdown-item" href="{{ url_for('profile', user_id=user.id) }}">Your Profile</a></li>
                 <li><a class="dropdown-item" href="{{ url_for('analytic_page', user_id=user.id) }}">Statistics</a></li>
                 <li><a class="dropdown-item" href="#">Settings</a></li>
+                {% if user.is_authenticated and user.admin %}
+                  <a class="dropdown-item" href="{{ url_for('admin_page') }}">Admin</a>
+                {% endif %}
                 <li>
                   <hr class="dropdown-divider">
                 </li>

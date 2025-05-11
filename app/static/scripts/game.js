@@ -311,6 +311,10 @@ function unblur() {
 // End the game
 function endGame() {
   submitButton.disabled = true;
+  const unblurImageButton = document.getElementById('unblurImage');
+  unblurImageButton.disabled = true;
+  const revealHintButton = document.getElementById('revealHint');
+  revealHintButton.disabled = true;
   if (hintText.textContent !== 'Got it!') {
     hintText.textContent = 'Game Over!';
   }
@@ -344,6 +348,10 @@ function resetGame() {
 
   // Enable the "Submit Guess" button
   submitButton.disabled = false;
+  const revealHintButton = document.getElementById('revealHint');
+  revealHintButton.disabled = false;
+  const unblurImageButton = document.getElementById('unblurImage');
+  unblurImageButton.disabled = false;
 
   // Remove the "Start New Game" button if it exists
   const newGameButton = document.getElementById('newGameButton');

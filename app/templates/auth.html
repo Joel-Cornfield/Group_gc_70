@@ -15,6 +15,20 @@
 </head>
 
 <body>
+    <!-- Flash Messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+    <div class="container mt-4">
+        {% for category, message in messages %}
+        <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+    {% endwith %}
+    <!-- End Flash Messages -->
     <!-- Navbar -->
     <nav class="navbar navbar-expand-lg navbar-dark bg-uwa px-4">
         <a class="navbar-brand d-flex align-items-center" href="#">
@@ -90,21 +104,26 @@
                     <div class="auth-form" id="formContainer">
                         <ul class="nav nav-tabs mb-4" id="myTab" role="tablist">
                             <li class="nav-item" role="presentation">
-                                <button class="nav-link active" id="login-tab" data-bs-toggle="tab" data-bs-target="#login" type="button" role="tab" aria-controls="login" aria-selected="true">Login</button>
+                                <button class="nav-link {% if tab == 'login' %}active{% endif %}" id="login-tab" data-bs-toggle="tab" data-bs-target="#login" type="button" role="tab" aria-controls="login" aria-selected="{{ tab == 'login' }}">Login</button>
                             </li>
                             <li class="nav-item" role="presentation">
-                                <button class="nav-link" id="signup-tab" data-bs-toggle="tab" data-bs-target="#signup" type="button" role="tab" aria-controls="signup" aria-selected="false">Sign Up</button>
+                                <button class="nav-link {% if tab == 'signup' %}active{% endif %}" id="signup-tab" data-bs-toggle="tab" data-bs-target="#signup" type="button" role="tab" aria-controls="signup" aria-selected="{{ tab == 'signup' }}">Sign Up</button>
                             </li>
                         </ul>
                         <div class="tab-content" id="myTabContent">
                             <!-- Login Form -->
-                            <div class="tab-pane fade show active" id="login" role="tabpanel" aria-labelledby="login-tab">
+                            <div class="tab-pane fade {% if tab == 'login' %}show active{% endif %}" id="login" role="tabpanel" aria-labelledby="login-tab">
                                 <h2 class="fw-bold mb-4">Welcome back!</h2>
                                 <p class="text-muted mb-4">Login to continue your UWA campus exploration journey.</p>
                                 <form method="POST" action="{{ url_for('login') }}">
                                     {{ login_form.hidden_tag() }}
                                     <div class="form-floating mb-3">
                                         {{ login_form.username(class="form-control", placeholder="Username") }}
+                                        {% if login_form.username.errors %}
+                                        <div class="text-danger small mt-1">
+                                            {{ login_form.username.errors[0] }}
+                                        </div>
+                                        {% endif %}
                                         <label for="username">Username</label>
                                     </div>
                                     <div class="form-floating mb-3">
@@ -115,9 +134,9 @@
                                     <p class="text-center mb-0">Don't have an account? <a href="#" class="text-decoration-none fw-bold" id="showSignup">Sign up</a></p>
                                 </form>
                             </div>
-
+                        
                             <!-- Signup Form -->
-                            <div class="tab-pane fade" id="signup" role="tabpanel" aria-labelledby="signup-tab">
+                            <div class="tab-pane fade {% if tab == 'signup' %}show active{% endif %}" id="signup" role="tabpanel" aria-labelledby="signup-tab">
                                 <h2 class="fw-bold mb-4">Create your account</h2>
                                 <p class="text-muted mb-4">Join the UWA GeoGuessr community and start exploring!</p>
                                 <form method="POST" action="{{ url_for('signup') }}">
@@ -125,26 +144,56 @@
                                     <div class="form-floating mb-3">
                                         {{ signup_form.first_name(class="form-control", placeholder="First Name") }}
                                         <label for="first_name">First Name</label>
+                                        {% if signup_form.first_name.errors %}
+                                        <div class="text-danger small mt-1">
+                                            {{ signup_form.first_name.errors[0] }}
+                                        </div>
+                                        {% endif %}
                                     </div>
                                     <div class="form-floating mb-3">
                                         {{ signup_form.last_name(class="form-control", placeholder="Last Name") }}
                                         <label for="last_name">Last Name</label>
+                                        {% if signup_form.last_name.errors %}
+                                        <div class="text-danger small mt-1">
+                                            {{ signup_form.last_name.errors[0] }}
+                                        </div>
+                                        {% endif %}
                                     </div>
                                     <div class="form-floating mb-3">
                                         {{ signup_form.username(class="form-control", placeholder="Username") }}
                                         <label for="username">Username</label>
+                                        {% if signup_form.username.errors %}
+                                        <div class="text-danger small mt-1">
+                                            {{ signup_form.username.errors[0] }}
+                                        </div>
+                                        {% endif %}
                                     </div>
                                     <div class="form-floating mb-3">
                                         {{ signup_form.email(class="form-control", placeholder="Email") }}
                                         <label for="email">Email</label>
+                                        {% if signup_form.email.errors %}
+                                        <div class="text-danger small mt-1">
+                                            {{ signup_form.email.errors[0] }}
+                                        </div>
+                                        {% endif %}
                                     </div>
                                     <div class="form-floating mb-3">
                                         {{ signup_form.password(class="form-control", placeholder="Password") }}
                                         <label for="password">Password</label>
+                                        {% if signup_form.password.errors %}
+                                        <div class="text-danger small mt-1">
+                                            {{ signup_form.password.errors[0] }}
+                                        </div>
+                                        {% endif %}
                                     </div>
                                     <div class="form-floating mb-3">
                                         {{ signup_form.confirm_password(class="form-control", placeholder="Confirm Password") }}
                                         <label for="confirm_password">Confirm Password</label>
+                                        {% if signup_form.confirm_password.errors %}
+                                        <div class="text-danger small mt-1">
+                                            {{ signup_form.confirm_password.errors[0] }}
+                                        </div>
+                                        {% endif %}
                                     </div>
                                     <button type="submit" class="btn btn-uwa w-100 py-3 mb-3">Create Account</button>
                                     <p class="text-center mb-0">Already have an account? <a href="#" class="text-decoration-none fw-bold" id="showLogin">Login</a></p>

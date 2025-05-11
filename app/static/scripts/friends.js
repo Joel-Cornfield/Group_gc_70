@@ -357,20 +357,25 @@ document.addEventListener('DOMContentLoaded', function () {
 
                 data.forEach(friend => {
                     const listItem = document.createElement('li');
-                    listItem.classList.add('list-group-item', 'd-flex', 'justify-content-between', 'align-items-center');
+                    listItem.classList.add('list-group-item', 'd-flex', 'justify-content-between', 'align-items-center', 'py-3');
+
                     listItem.innerHTML = `
                         <div class="d-flex align-items-center">
-                            <img src="${friend.profile_picture}" alt="Friend Avatar" class="me-3" style="width: 45px; height: 45px; border-radius: 50%;">
+                            <img src="${friend.profile_picture}" alt="Friend Avatar" class="me-3 shadow-sm" style="width: 50px; height: 50px; border-radius: 50%; object-fit: cover;">
                             <div>
-                                <a href="/analyticpage/${friend.id}" class="fw-medium">${friend.name}</a>
+                                <a href="/analyticpage/${friend.id}" class="fw-semibold text-decoration-none link-dark hover-link">
+                                    ${friend.name}
+                                </a>
                             </div>
                         </div>
-                        <button class="btn btn-outline-danger btn-sm remove-friend-button" data-friend-id="${friend.id}">
+                        <button class="btn btn-outline-danger btn-sm remove-friend-button" data-friend-id="${friend.id}" title="Remove Friend">
                             <i class="bi bi-person-x"></i>
                         </button>
                     `;
+
                     friendsList.appendChild(listItem);
                 });
+
                 
                 // Add event listeners to remove friend buttons
                 document.querySelectorAll('.remove-friend-button').forEach(button => {

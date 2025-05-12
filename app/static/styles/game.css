@@ -62,13 +62,23 @@
 	object-fit: cover;
 }
 
+#hint-display p {
+	margin: 10px 0; /* Adjust vertical spacing between hints */
+	padding: 0;    /* Remove extra padding if any */
+}
+  
+/* Adjust spacing between feedback and hints */
+#hint-text {
+	margin-bottom: 10px; /* Adjust spacing below the feedback area */
+}
+
 .button-warning {
 	color: --uwa-gold;
 }
 
 /* Greyscale effect for the image */
 .hidden {
-	filter: grayscale(100%) blur(10px);
+	filter: grayscale(100%) blur(2px);
 	pointer-events: none;
 	/* Disable interaction until revealed */
 }

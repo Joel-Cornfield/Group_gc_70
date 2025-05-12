@@ -7,6 +7,7 @@
     <title>UWA GeoGuessr - Login/Signup</title>
     <!-- Bootstrap CSS -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
     <!-- Font Awesome -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" rel="stylesheet">
     <!-- Custom CSS -->
@@ -15,6 +16,20 @@
 </head>
 
 <body>
+    <!-- Flash Messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+    <div class="container mt-4">
+        {% for category, message in messages %}
+        <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+    {% endwith %}
+    <!-- End Flash Messages -->
     <!-- Navbar -->
     <nav class="navbar navbar-expand-lg navbar-dark bg-uwa px-4">
         <a class="navbar-brand d-flex align-items-center" href="#">
@@ -27,6 +42,33 @@
             {% if not user.is_authenticated %}
                 <a class="nav-link text-white mx-2" href="{{ url_for('auth') }}">Login/Signup</a>
             {% endif %}
+            <!-- Notification Bell -->
+            {% if user.is_authenticated %}
+            <div class="dropdown notification-dropdown mx-2">
+                <a class="nav-link text-white position-relative" href="#" role="button" data-bs-toggle="dropdown" id="notificationBell" aria-expanded="false">
+                <i class="bi bi-bell-fill fs-5"></i>
+                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger notification-badge" style="display: none;">
+                    <span class="notification-count">0</span>
+                    <span class="visually-hidden">unread notifications</span>
+                </span>
+                </a>
+                <div class="dropdown-menu dropdown-menu-end notification-menu p-0" style="width: 320px; max-height: 400px; overflow-y: auto;">
+                <div class="notification-header bg-light p-2 d-flex justify-content-between align-items-center">
+                    <h6 class="m-0">Notifications</h6>
+                    <button class="btn btn-sm text-primary mark-all-read">Mark all as read</button>
+                </div>
+                <div class="dropdown-divider m-0"></div>
+                <div id="notification-list">
+                    <!-- Notifications will be loaded here -->
+                    <div class="text-center py-3 text-muted empty-notification">
+                    <i class="bi bi-bell-slash fs-4 d-block mb-2"></i>
+                    No new notifications
+                    </div>
+                </div>
+                <div class="dropdown-divider m-0"></div>
+                </div>
+            </div>
+            {% endif %}
             <div class="dropdown">
                 <a class="nav-link dropdown-toggle d-flex align-items-center mx-2" href="#" role="button" data-bs-toggle="dropdown">
                   <img src="{{ user.profile_picture or url_for('static', filename='images/defaultprofile.png') }}" alt="Profile Avatar" class="avatar-img">
@@ -35,7 +77,6 @@
                   {% if user.is_authenticated %}
                     <li><a class="dropdown-item" href="{{ url_for('profile', user_id=user.id) }}">Your Profile</a></li>
                     <li><a class="dropdown-item" href="{{ url_for('analytic_page', user_id=user.id) }}">Statistics</a></li>
-                    <li><a class="dropdown-item" href="#">Settings</a></li>
                     <li>
                       <hr class="dropdown-divider">
                     </li>
@@ -90,21 +131,26 @@
                     <div class="auth-form" id="formContainer">
                         <ul class="nav nav-tabs mb-4" id="myTab" role="tablist">
                             <li class="nav-item" role="presentation">
-                                <button class="nav-link active" id="login-tab" data-bs-toggle="tab" data-bs-target="#login" type="button" role="tab" aria-controls="login" aria-selected="true">Login</button>
+                                <button class="nav-link {% if tab == 'login' %}active{% endif %}" id="login-tab" data-bs-toggle="tab" data-bs-target="#login" type="button" role="tab" aria-controls="login" aria-selected="{{ tab == 'login' }}">Login</button>
                             </li>
                             <li class="nav-item" role="presentation">
-                                <button class="nav-link" id="signup-tab" data-bs-toggle="tab" data-bs-target="#signup" type="button" role="tab" aria-controls="signup" aria-selected="false">Sign Up</button>
+                                <button class="nav-link {% if tab == 'signup' %}active{% endif %}" id="signup-tab" data-bs-toggle="tab" data-bs-target="#signup" type="button" role="tab" aria-controls="signup" aria-selected="{{ tab == 'signup' }}">Sign Up</button>
                             </li>
                         </ul>
                         <div class="tab-content" id="myTabContent">
                             <!-- Login Form -->
-                            <div class="tab-pane fade show active" id="login" role="tabpanel" aria-labelledby="login-tab">
+                            <div class="tab-pane fade {% if tab == 'login' %}show active{% endif %}" id="login" role="tabpanel" aria-labelledby="login-tab">
                                 <h2 class="fw-bold mb-4">Welcome back!</h2>
                                 <p class="text-muted mb-4">Login to continue your UWA campus exploration journey.</p>
                                 <form method="POST" action="{{ url_for('login') }}">
                                     {{ login_form.hidden_tag() }}
                                     <div class="form-floating mb-3">
                                         {{ login_form.username(class="form-control", placeholder="Username") }}
+                                        {% if login_form.username.errors %}
+                                        <div class="text-danger small mt-1">
+                                            {{ login_form.username.errors[0] }}
+                                        </div>
+                                        {% endif %}
                                         <label for="username">Username</label>
                                     </div>
                                     <div class="form-floating mb-3">
@@ -115,9 +161,9 @@
                                     <p class="text-center mb-0">Don't have an account? <a href="#" class="text-decoration-none fw-bold" id="showSignup">Sign up</a></p>
                                 </form>
                             </div>
-
+                        
                             <!-- Signup Form -->
-                            <div class="tab-pane fade" id="signup" role="tabpanel" aria-labelledby="signup-tab">
+                            <div class="tab-pane fade {% if tab == 'signup' %}show active{% endif %}" id="signup" role="tabpanel" aria-labelledby="signup-tab">
                                 <h2 class="fw-bold mb-4">Create your account</h2>
                                 <p class="text-muted mb-4">Join the UWA GeoGuessr community and start exploring!</p>
                                 <form method="POST" action="{{ url_for('signup') }}">
@@ -125,26 +171,56 @@
                                     <div class="form-floating mb-3">
                                         {{ signup_form.first_name(class="form-control", placeholder="First Name") }}
                                         <label for="first_name">First Name</label>
+                                        {% if signup_form.first_name.errors %}
+                                        <div class="text-danger small mt-1">
+                                            {{ signup_form.first_name.errors[0] }}
+                                        </div>
+                                        {% endif %}
                                     </div>
                                     <div class="form-floating mb-3">
                                         {{ signup_form.last_name(class="form-control", placeholder="Last Name") }}
                                         <label for="last_name">Last Name</label>
+                                        {% if signup_form.last_name.errors %}
+                                        <div class="text-danger small mt-1">
+                                            {{ signup_form.last_name.errors[0] }}
+                                        </div>
+                                        {% endif %}
                                     </div>
                                     <div class="form-floating mb-3">
                                         {{ signup_form.username(class="form-control", placeholder="Username") }}
                                         <label for="username">Username</label>
+                                        {% if signup_form.username.errors %}
+                                        <div class="text-danger small mt-1">
+                                            {{ signup_form.username.errors[0] }}
+                                        </div>
+                                        {% endif %}
                                     </div>
                                     <div class="form-floating mb-3">
                                         {{ signup_form.email(class="form-control", placeholder="Email") }}
                                         <label for="email">Email</label>
+                                        {% if signup_form.email.errors %}
+                                        <div class="text-danger small mt-1">
+                                            {{ signup_form.email.errors[0] }}
+                                        </div>
+                                        {% endif %}
                                     </div>
                                     <div class="form-floating mb-3">
                                         {{ signup_form.password(class="form-control", placeholder="Password") }}
                                         <label for="password">Password</label>
+                                        {% if signup_form.password.errors %}
+                                        <div class="text-danger small mt-1">
+                                            {{ signup_form.password.errors[0] }}
+                                        </div>
+                                        {% endif %}
                                     </div>
                                     <div class="form-floating mb-3">
                                         {{ signup_form.confirm_password(class="form-control", placeholder="Confirm Password") }}
                                         <label for="confirm_password">Confirm Password</label>
+                                        {% if signup_form.confirm_password.errors %}
+                                        <div class="text-danger small mt-1">
+                                            {{ signup_form.confirm_password.errors[0] }}
+                                        </div>
+                                        {% endif %}
                                     </div>
                                     <button type="submit" class="btn btn-uwa w-100 py-3 mb-3">Create Account</button>
                                     <p class="text-center mb-0">Already have an account? <a href="#" class="text-decoration-none fw-bold" id="showLogin">Login</a></p>
@@ -157,6 +233,8 @@
         </div>
     </div>
 
+    <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+    <script src="{{ url_for('static', filename='scripts/friends.js') }}"></script>
     <!-- Bootstrap JS Bundle with Popper -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js"></script>
     <script src="{{ url_for('static', filename='scripts/auth.js') }}"></script>

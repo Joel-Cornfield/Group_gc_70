@@ -1,6 +1,6 @@
 import random
-import datetime
-from flask import render_template, redirect, url_for, flash, request, jsonify 
+import json
+from flask import render_template, redirect, url_for, flash, request, jsonify
 from flask_login import login_user, logout_user, login_required, current_user
 from app.forms import LoginForm, RegistrationForm
 from app.models import User, Game, Stats, Location, Hint, Friend
@@ -112,7 +112,7 @@ def profile(user_id):
 
     return render_template('profile.html', user=current_user, stats=stats)
 
-# Leaderboard/Statistics Page with user-specific access
+# Leaderboard/Statistics Page (Example, would need more info)
 @app.route('/analyticpage/<int:user_id>')
 @login_required
 def analytic_page(user_id):
@@ -129,50 +129,7 @@ def analytic_page(user_id):
         flash("You are not authorized to view this analytics page.", "danger")
         return redirect(url_for('home'))
 
-    # Leaderboards
-    win_streak_leaderboard = Stats.query.join(User).with_entities(
-        User.username.label("player"),
-        Stats.win_streak.label("value")
-    ).order_by(Stats.win_streak.desc()).limit(10).all()
-
-    total_wins_leaderboard = Stats.query.join(User).with_entities(
-        User.username.label("player"),
-        Stats.total_wins.label("value")
-    ).order_by(Stats.total_wins.desc()).limit(10).all()
-
-    win_percentage_leaderboard = Stats.query.join(User).with_entities(
-        User.username.label("player"),
-        Stats.win_percentage.label("value")
-    ).order_by(Stats.win_percentage.desc()).limit(10).all()
-
-    # Helper to get user's rank in a leaderboard
-    def get_rank(leaderboard, username):
-        for index, entry in enumerate(leaderboard):
-            if entry.player == username:
-                return f"#{index + 1}"
-        return "N/A"
-
-    stats_data = {
-        "total_games": stats.total_games,
-        "time_spent": f"{stats.time_spent // 60} mins" if stats.time_spent else "0 mins",
-        "win_streak": stats.win_streak,
-        "win_streak_rank": get_rank(win_streak_leaderboard, user.username),
-        "total_wins": stats.total_wins,
-        "total_wins_rank": get_rank(total_wins_leaderboard, user.username),
-        "win_percentage": f"{stats.win_percentage:.2f}%" if stats.win_percentage is not None else "N/A",
-        "win_percentage_rank": get_rank(win_percentage_leaderboard, user.username),
-        "start_date": stats.start_date.strftime('%B %d, %Y') if stats.created_at else "Unknown"
-    }
-
-    return render_template(
-        'analyticpage.html',
-        user=user,
-        win_streak_leaderboard=win_streak_leaderboard,
-        total_wins_leaderboard=total_wins_leaderboard,
-        win_percentage_leaderboard=win_percentage_leaderboard,
-        stats=stats_data
-    )
-
+    return render_template('analyticpage.html', user=user, stats=stats)
 
 # API Endpoint: Get User Data (Example)
 @app.route('/api/user/<int:user_id>', methods=['GET'])
@@ -269,28 +226,11 @@ def signup():
         )
         user.set_password(signup_form.password.data)
         try:
-            # Add user to the database
             db.session.add(user)
-            db.session.commit()  # Commit user to generate user.id
-
-            # Create a stats entry for this user
-            stats = Stats(
-                user_id=user.id,
-                total_games=0,
-                total_wins=0,
-                win_streak=0,
-                time_spent=0,
-                win_percentage=0.0,
-                start_date=datetime.utcnow()
-            )
-            db.session.add(stats)
-            db.session.commit()  # Commit stats to the database
-
-            flash("Account created successfully!", "success")
+            db.session.commit()
             return redirect(url_for('login'))
         except Exception as e:
             db.session.rollback()
-            print(f"Error: {e}")
             flash('An error occurred while creating your account. Please try again.', 'danger')
             return render_template(
                 'auth.html',
@@ -306,9 +246,6 @@ def signup():
         login_form=LoginForm(),
         tab='signup'  # Stay on the signup tab
     )
-
-
-
 
 # Logout 
 @app.route('/auth/logout')

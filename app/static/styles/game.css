@@ -78,7 +78,7 @@
 
 /* Greyscale effect for the image */
 .hidden {
-	filter: grayscale(100%) blur(2px);
+	filter: grayscale(100%) blur(3px);
 	pointer-events: none;
 	/* Disable interaction until revealed */
 }

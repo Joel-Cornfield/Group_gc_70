@@ -12,6 +12,7 @@ class User(db.Model, UserMixin):
     password_hash = db.Column(db.String(128), nullable=False)
     first_name = db.Column(db.String(120), nullable=False)
     last_name = db.Column(db.String(120), nullable=False)
+    admin = db.Column(db.Boolean, default=False)
 
     friends = db.relationship("Friend", back_populates="user", foreign_keys="Friend.user_id")
 
@@ -87,6 +88,8 @@ class Location(db.Model):
     latitude = db.Column(db.Float, nullable=False)
     longitude = db.Column(db.Float, nullable=False)
     department = db.Column(db.String(255), nullable=True)
+    image_data = db.Column(db.LargeBinary, nullable=True)  # New column for storing image data
+    image_mimetype = db.Column(db.String(255), nullable=True)  # Store the image MIME type
     hints = db.relationship("Hint", back_populates="location", cascade="all, delete-orphan")
 
     def __repr__(self):

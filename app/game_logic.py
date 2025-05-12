@@ -58,17 +58,19 @@ def process_guess(game_id, user_id, data):
     db.session.add(guess)
 
     # Update game stats
-    game.total_score += max(0, 100 - int(distance))  # Example scoring logic
+    prev_score = game.total_score
 
     # Check if the game should be finalized
     if distance <= 25:  # Correct guess threshold
         submit_game(game, user_id, True)
     elif len(game.guesses) == 3:  # Max guesses reached
+        prev_score = 0
+        game.total_score = prev_score
         submit_game(game, user_id, False)
-
+    game.total_score = max(0, prev_score-25) 
     db.session.commit()
 
-    return {'guesses': [serialize_guess(g) for g in game.guesses]}
+    return {'guesses': [serialize_guess(g) for g in game.guesses], 'score': game.total_score}
 
 def submit_game(game, user_id, success):
     # Finalize the game
@@ -81,7 +83,7 @@ def submit_game(game, user_id, success):
     if user_id:
         stats = Stats.query.filter_by(user_id=user_id).first()
         if not stats:
-            stats = Stats(user_id=user_id, total_games=0, total_wins=0, win_streak=0, time_spent=0)
+            stats = Stats(user_id=user_id, total_games=0, total_wins=0, win_streak=0, time_spent=0, start_date=db.func.now())
             db.session.add(stats)
 
         stats.total_games += 1

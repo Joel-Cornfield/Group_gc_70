@@ -37,10 +37,10 @@
             <span class="fw-bold text-uwa-gold">UWA GeoGuesser</span>
         </a>
         <div class="ms-auto d-flex align-items-center">
-            <a class="nav-link text-white mx-2" href="{{ url_for('home') }}">Home</a>
-            <a class="nav-link text-white mx-2" href="{{ url_for('game') }}">Game</a>
+            <a class="nav-link text-white mx-2" href="{{ url_for('main.home') }}">Home</a>
+            <a class="nav-link text-white mx-2" href="{{ url_for('main.game') }}">Game</a>
             {% if not user.is_authenticated %}
-                <a class="nav-link text-white mx-2" href="{{ url_for('auth') }}">Login/Signup</a>
+                <a class="nav-link text-white mx-2" href="{{ url_for('main.auth') }}">Login/Signup</a>
             {% endif %}
             <!-- Notification Bell -->
             {% if user.is_authenticated %}
@@ -75,14 +75,14 @@
                 </a>
                 <ul class="dropdown-menu dropdown-menu-end">
                   {% if user.is_authenticated %}
-                    <li><a class="dropdown-item" href="{{ url_for('profile', user_id=user.id) }}">Your Profile</a></li>
-                    <li><a class="dropdown-item" href="{{ url_for('analytic_page', user_id=user.id) }}">Statistics</a></li>
+                    <li><a class="dropdown-item" href="{{ url_for('main.profile', user_id=user.id) }}">Your Profile</a></li>
+                    <li><a class="dropdown-item" href="{{ url_for('main.analytic_page', user_id=user.id) }}">Statistics</a></li>
                     <li>
                       <hr class="dropdown-divider">
                     </li>
-                    <li><a class="dropdown-item text-danger" href="{{ url_for('logout') }}">Logout</a></li>
+                    <li><a class="dropdown-item text-danger" href="{{ url_for('main.logout') }}">Logout</a></li>
                   {% else %}
-                    <li><a class="dropdown-item" href="{{ url_for('auth') }}">Login/Signup</a></li>
+                    <li><a class="dropdown-item" href="{{ url_for('main.auth') }}">Login/Signup</a></li>
                   {% endif %}
                 </ul>
             </div>
@@ -142,7 +142,7 @@
                             <div class="tab-pane fade {% if tab == 'login' %}show active{% endif %}" id="login" role="tabpanel" aria-labelledby="login-tab">
                                 <h2 class="fw-bold mb-4">Welcome back!</h2>
                                 <p class="text-muted mb-4">Login to continue your UWA campus exploration journey.</p>
-                                <form method="POST" action="{{ url_for('login') }}">
+                                <form method="POST" action="{{ url_for('main.login') }}">
                                     {{ login_form.hidden_tag() }}
                                     <div class="form-floating mb-3">
                                         {{ login_form.username(class="form-control", placeholder="Username") }}
@@ -166,7 +166,7 @@
                             <div class="tab-pane fade {% if tab == 'signup' %}show active{% endif %}" id="signup" role="tabpanel" aria-labelledby="signup-tab">
                                 <h2 class="fw-bold mb-4">Create your account</h2>
                                 <p class="text-muted mb-4">Join the UWA GeoGuessr community and start exploring!</p>
-                                <form method="POST" action="{{ url_for('signup') }}">
+                                <form method="POST" action="{{ url_for('main.signup') }}">
                                     {{ signup_form.hidden_tag() }}
                                     <div class="form-floating mb-3">
                                         {{ signup_form.first_name(class="form-control", placeholder="First Name") }}

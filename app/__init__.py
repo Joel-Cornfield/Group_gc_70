@@ -5,23 +5,36 @@ from flask_migrate import Migrate
 from flask_login import LoginManager
 from flask_socketio import SocketIO
 
-app = Flask(__name__)
-app.config.from_object(Config)
-app.config['SECRET_KEY'] = '4e2b6d9f8a7c4a937fc3882efhfjdb62b8df3sbdhfeb80d34dd0221bdc6b2a0efbb4'
 
-db = SQLAlchemy(app)
-migrate = Migrate(app, db)
-socketio = SocketIO(app, cors_allowed_origins="*") 
 
+db = SQLAlchemy()
+migrate = Migrate()
 login_manager = LoginManager()
-login_manager.login_view = 'auth' # Redirect to the auth page if not logged in
-login_manager.init_app(app)
+socketio = SocketIO(cors_allowed_origins="*") 
 
-from app.models import User
+def create_app(config_class=Config):
+    app = Flask(__name__)
+    app.config.from_object(config_class)
+    app.config['SECRET_KEY'] = '4e2b6d9f8a7c4a937fc3882efhfjdb62b8df3sbdhfeb80d34dd0221bdc6b2a0efbb4'
 
-@login_manager.user_loader
-def load_user(user_id):
-    return User.query.get(int(user_id))
+    
+    db.init_app(app)
 
+    from app.blueprints import main
+    app.register_blueprint(main)
 
-from app import routes, models, socket_events 
+    migrate.init_app(app, db)
+    socketio.init_app(app)
+    login_manager.init_app(app)
+    login_manager.login_view = 'main.auth'
+
+    from app.models import User
+
+    @login_manager.user_loader
+    def load_user(user_id):
+        return User.query.get(int(user_id))
+
+    with app.app_context():
+        from app import routes, models, socket_events
+
+    return app

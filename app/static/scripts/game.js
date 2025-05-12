@@ -140,23 +140,52 @@ function fetchGameState() {
       // Update game state
       gameId = data.game_id;
       guessImage.src = data.guess_image;
-      guessImage.classList.remove('hidden');
       revealButton.classList.add('hidden');
       totalScoreElement.textContent = `100`;
 
-      // Dynamically create the "Reveal Hint" button
-      const revealHintButton = document.createElement('button');
-      revealHintButton.classList.add('btn', 'btn-warning', 'mx-2');
-      revealHintButton.id = 'revealHint';
-      revealHintButton.textContent = 'Reveal Hint (-10 p)';
+      // Clear the hint display for the new game
+      hintDisplay.innerHTML = '';
 
-      // Add click event listener to start a new game
-      revealHintButton.addEventListener('click', () => {
-        fetchHint();
-      });
+      // Check if the "Reveal Hint" button already exists
+      let revealHintButton = document.getElementById('revealHint');
+      if (!revealHintButton) {
+        // Dynamically create the "Reveal Hint" button if it doesn't exist
+        revealHintButton = document.createElement('button');
+        revealHintButton.classList.add('btn', 'btn-warning', 'mx-2');
+        revealHintButton.id = 'revealHint';
+        revealHintButton.textContent = 'Reveal Hint (-10 p)';
 
-      // Append the button next to the "Submit Guess" button
-      submitButton.parentElement.appendChild(revealHintButton);
+        // Add click event listener to fetch a hint
+        revealHintButton.addEventListener('click', () => {
+          fetchHint();
+        });
+
+        submitButton.parentElement.appendChild(revealHintButton);
+
+      } else {
+        // Re-enable the button if it already exists
+        revealHintButton.disabled = false;
+      }
+        // Check if the "Unblur Image" button already exists
+      let unblurImageButton = document.getElementById('unblurImage');
+      if (!unblurImageButton) {
+        // Dynamically create the "Reveal Hint" button if it doesn't exist
+        unblurImageButton = document.createElement('button');
+        unblurImageButton.classList.add('btn', 'btn-warning', 'mx-2');
+        unblurImageButton.id = 'unblurImage';
+        unblurImageButton.textContent = 'Unblur Image (-20 p)';
+
+        // Add click event listener to fetch a hint
+        unblurImageButton.addEventListener('click', () => {
+          unblur();
+        });
+
+        // Append the button next to the "Submit Guess" button
+        submitButton.parentElement.appendChild(unblurImageButton);
+      } else {
+        // Re-enable the button if it already exists
+        unblurImageButton.disabled = false;
+      }
 
       // Reset timer
       resetTimer();
@@ -258,9 +287,34 @@ function fetchHint() {
     .catch((error) => console.error('Error fetching hint:', error));
 }
 
+function unblur() {
+  fetch(`/unblur/${gameId}`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+  })
+    .then((response) => response.json())
+    .then((data) => {
+      console.log('Unblur response:', data);
+      if (data.error) {
+        console.error(data.error);
+      }
+      const unblurImageButton = document.getElementById('unblurImage');
+      unblurImageButton.disabled = true; // Disable the button
+      // Unblur the image
+      guessImage.classList.remove('hidden');
+      totalScoreElement.textContent = data.score;
+    })
+    .catch((error) => console.error('Error unblurring image:', error));
+}
+
+
 // End the game
 function endGame() {
   submitButton.disabled = true;
+  const unblurImageButton = document.getElementById('unblurImage');
+  unblurImageButton.disabled = true;
+  const revealHintButton = document.getElementById('revealHint');
+  revealHintButton.disabled = true;
   if (hintText.textContent !== 'Got it!') {
     hintText.textContent = 'Game Over!';
   }
@@ -294,6 +348,10 @@ function resetGame() {
 
   // Enable the "Submit Guess" button
   submitButton.disabled = false;
+  const revealHintButton = document.getElementById('revealHint');
+  revealHintButton.disabled = false;
+  const unblurImageButton = document.getElementById('unblurImage');
+  unblurImageButton.disabled = false;
 
   // Remove the "Start New Game" button if it exists
   const newGameButton = document.getElementById('newGameButton');

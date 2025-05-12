@@ -1,6 +1,6 @@
 import random
-import datetime
-from flask import render_template, redirect, url_for, flash, request, jsonify 
+import json
+from flask import render_template, redirect, url_for, flash, request, jsonify
 from flask_login import login_user, logout_user, login_required, current_user
 from app.forms import LoginForm, RegistrationForm
 from app.models import User, Game, Stats, Location, Hint, Friend

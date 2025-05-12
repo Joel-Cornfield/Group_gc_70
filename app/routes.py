@@ -1,13 +1,26 @@
 import random
 from flask import render_template, redirect, url_for, flash, request, jsonify 
 from flask_login import login_user, logout_user, login_required, current_user
-from app.forms import LoginForm, RegistrationForm
+from werkzeug.utils import secure_filename
+from app.forms import LoginForm, RegistrationForm, ProfilePictureForm, ChangePasswordForm
 from app.models import User, Game, Stats, Location, Hint, Friend
 from app import db, app
 from app.game_logic import process_guess
 from app.socket_events import send_notification_to_user
 from datetime import datetime
 from app.models import Notification
+
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'} 
+
+# Helper function to check file extensions
+def allowed_file(filename): 
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'} 
+
+# Helper function to check file extensions
+def allowed_file(filename): 
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 """
 This file contains the route definitions for the Flask application. Almost all of these endpoints are skeletolns and are not fully implemented yet.
@@ -109,7 +122,53 @@ def profile(user_id):
     user = User.query.get_or_404(user_id)
     stats = Stats.query.filter_by(user_id=user_id).first()
 
-    return render_template('profile.html', user=current_user, stats=stats)
+    profile_picture_form = ProfilePictureForm() 
+    change_password_form = ChangePasswordForm() 
+    return render_template('profile.html', user=current_user, stats=stats, profile_picture_form=profile_picture_form, change_password_form=change_password_form)
+
+# Change Password Route
+@app.route('/change_password', methods=['POST'])
+@login_required
+def change_password():
+    form = ChangePasswordForm()
+    if form.validate_on_submit():
+        if not current_user.check_password(form.current_password.data):
+            flash('Current password is incorrect.', 'danger')
+        else:
+            current_user.set_password(form.new_password.data)
+            db.session.commit()
+            flash('Password updated successfully!', 'success')
+    else:
+        flash('Please fix the errors in the form.', 'danger')
+    
+    return redirect(url_for('profile', user_id=current_user.id))
+
+# Upload Profile Picture Route
+@app.route('/upload-profile-picture', methods=['POST'])  
+@login_required 
+def upload_profile_picture():  
+    if 'profile_picture' not in request.files: 
+        flash('No file part', 'warning') 
+        return redirect(url_for('profile', user_id=current_user.id)) 
+
+    file = request.files['profile_picture']  
+    if file.filename == '': 
+        flash('No selected file', 'warning') 
+        return redirect(url_for('profile', user_id=current_user.id))  
+
+    if file and allowed_file(file.filename): 
+        filename = secure_filename(file.filename) 
+        filepath = os.path.join(app.static_folder, 'uploads', filename)  
+        file.save(filepath) 
+
+        current_user.profile_picture = f'uploads/{filename}' 
+        db.session.commit()  
+        flash('Profile picture updated successfully!', 'success')  
+    else:  
+        flash('Invalid file type', 'danger')  
+
+    return redirect(url_for('profile', user_id=current_user.id))  
+
 
 # Leaderboard/Statistics Page (Example, would need more info)
 @app.route('/analyticpage/<int:user_id>')

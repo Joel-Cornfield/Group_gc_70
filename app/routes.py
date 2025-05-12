@@ -2,9 +2,12 @@ import random
 from flask import render_template, redirect, url_for, flash, request, jsonify 
 from flask_login import login_user, logout_user, login_required, current_user
 from app.forms import LoginForm, RegistrationForm
-from app.models import User, Game, Stats, Location, Hint
+from app.models import User, Game, Stats, Location, Hint, Friend
 from app import db, app
 from app.game_logic import process_guess
+from app.socket_events import send_notification_to_user
+from datetime import datetime
+from app.models import Notification
 
 """
 This file contains the route definitions for the Flask application. Almost all of these endpoints are skeletolns and are not fully implemented yet.
@@ -91,14 +94,27 @@ def how_to_play():
 def profile(user_id):
     user = User.query.get_or_404(user_id)
     stats = Stats.query.filter_by(user_id=user_id).first()
+
     return render_template('profile.html', user=current_user, stats=stats)
 
 # Leaderboard/Statistics Page (Example, would need more info)
-@app.route('/analyticpage')
-@login_required 
-def analytic_page():
-    stats = Stats.query.order_by(Stats.total_wins.desc()).all()
-    return render_template('analyticpage.html', user=current_user, stats=stats)
+@app.route('/analyticpage/<int:user_id>')
+@login_required
+def analytic_page(user_id):
+    user = User.query.get_or_404(user_id)
+    stats = Stats.query.filter_by(user_id=user_id).first()
+
+    # Check if the current user is the owner or a friend
+    is_friend = Friend.query.filter(
+        ((Friend.user_id == current_user.id) & (Friend.friend_id == user_id) & (Friend.status == "accepted")) |
+        ((Friend.user_id == user_id) & (Friend.friend_id == current_user.id) & (Friend.status == "accepted"))
+    ).first()
+
+    if user_id != current_user.id and not is_friend:
+        flash("You are not authorized to view this analytics page.", "danger")
+        return redirect(url_for('home'))
+
+    return render_template('analyticpage.html', user=user, stats=stats)
 
 # API Endpoint: Get User Data (Example)
 @app.route('/api/user/<int:user_id>', methods=['GET'])
@@ -144,9 +160,7 @@ def login():
         user = User.query.filter_by(username=login_form.username.data).first()
         if user and user.check_password(login_form.password.data):
             login_user(user)
-            flash('Logged in successfully!', 'success')
-            return redirect(url_for('home'))
-        flash('Invalid username or password', 'danger')  
+            return redirect(url_for('home')) 
     return render_template('auth.html', user=current_user, login_form=login_form, signup_form=signup_form, tab='login')
 
 # Registration Form Submission 
@@ -161,7 +175,6 @@ def signup():
             (User.email == signup_form.email.data) | (User.username == signup_form.username.data)
         ).first()
         if existing_user:
-            flash('Email or username already exists. Please choose a different one.', 'danger')
             return render_template(
                 'auth.html',
                 user=current_user,
@@ -181,7 +194,6 @@ def signup():
         try:
             db.session.add(user)
             db.session.commit()
-            flash('Account created successfully!', 'success')
             return redirect(url_for('login'))
         except Exception as e:
             db.session.rollback()
@@ -205,9 +217,291 @@ def signup():
 @app.route('/auth/logout')
 @login_required
 def logout():
+    # Delete all read notifications for current user before logout
+    try:
+        Notification.query.filter_by(user_id=current_user.id, is_read=True).delete()
+        db.session.commit()
+    except Exception as e:
+        db.session.rollback()
+        flash('An error occurred while clearing notifications on logout. Please try again.', 'danger')
     logout_user()
     return redirect(url_for('auth'))
 
+# Fetch the current user's friends
+@app.route('/api/friends', methods=['GET'])
+@login_required
+def get_friends():
+    # Fetch all friends where the current user is either the sender or the recipient
+    friends = Friend.query.filter(
+        ((Friend.user_id == current_user.id) | (Friend.friend_id == current_user.id)) &
+        (Friend.status == "accepted")
+    ).all()
+
+    # Use a set to track unique friend IDs
+    unique_friend_ids = set()
+    friends_list = []
+
+    for friend in friends:
+        # Determine the friend's ID (exclude the current user)
+        friend_id = friend.friend_id if friend.user_id == current_user.id else friend.user_id
+
+        # Add to the list only if not already added
+        if friend_id not in unique_friend_ids:
+            unique_friend_ids.add(friend_id)
+            friends_list.append({
+                'id': friend_id,
+                'name': User.query.get(friend_id).username,
+                'profile_picture': url_for('static', filename='images/default_profile.png')  # Placeholder
+            })
+
+    return jsonify(friends_list)
+
+# Add a new friend
+@app.route('/api/friends/add', methods=['POST'])
+@login_required
+def add_friend():
+    data = request.json
+    friend_username = data.get('username')
+
+    # Check if the user exists
+    friend = User.query.filter_by(username=friend_username).first()
+    if not friend:
+        return jsonify({'error': 'User not found'}), 404
+        
+    # Check if trying to add self
+    if friend.id == current_user.id:
+        return jsonify({'error': 'You cannot add yourself as a friend'}), 400
+
+    # Check if the friend relationship already exists
+    existing_friend = Friend.query.filter(
+        (Friend.user_id == current_user.id) & (Friend.friend_id == friend.id)
+    ).first()
+    if existing_friend:
+        return jsonify({'error': 'Friend request already sent or relationship exists'}), 400
+
+    # Check if there's already a pending request from this user
+    incoming_request = Friend.query.filter(
+        (Friend.user_id == friend.id) & (Friend.friend_id == current_user.id) & (Friend.status == "pending")
+    ).first()
+    
+    if incoming_request:
+        # Accept the existing request instead of creating a new one
+        incoming_request.status = "accepted"
+        # Create reciprocal relationship
+        new_friend = Friend(user_id=current_user.id, friend_id=friend.id, status="accepted")
+        db.session.add(new_friend)
+        db.session.commit()
+        
+        # Send WebSocket notification to both users
+        send_notification_to_user(current_user.id, 'friend_accepted', {
+            'friend_id': friend.id,
+            'friend_name': friend.username,
+            'profile_picture': url_for('static', filename='images/default_profile.png')
+        })
+        
+        send_notification_to_user(friend.id, 'friend_accepted', {
+            'friend_id': current_user.id,
+            'friend_name': current_user.username,
+            'profile_picture': url_for('static', filename='images/default_profile.png')
+        })
+        
+        return jsonify({'message': f'You are now friends with {friend_username}!'})
+    
+    # Create a new friend request with status "pending"
+    new_friend_request = Friend(user_id=current_user.id, friend_id=friend.id, status="pending")
+    db.session.add(new_friend_request)
+    db.session.commit()
+    
+    # Send WebSocket notification to the recipient
+    send_notification_to_user(friend.id, 'friend_request', {
+        'request_id': new_friend_request.id,
+        'sender_id': current_user.id,
+        'sender_name': current_user.username,
+        'profile_picture': url_for('static', filename='images/default_profile.png')
+    })
+
+    return jsonify({'message': f'Friend request sent to {friend_username}!'})
+
+# Fetch pending friend requests
+@app.route('/api/friends/requests', methods=['GET'])
+@login_required
+def get_friend_requests():
+    requests = Friend.query.filter_by(friend_id=current_user.id, status="pending").all()
+    requests_list = [
+        {
+            'id': request.id,
+            'user_id': request.user_id,
+            'name': User.query.get(request.user_id).username,
+            'profile_picture': url_for('static', filename='images/default_profile.png')  # Placeholder
+        }
+        for request in requests
+    ]
+    return jsonify(requests_list)
+
+# Accept a friend request 
+@app.route('/api/friends/accept', methods=['POST'])
+@login_required
+def accept_friend_request():
+    data = request.json
+    request_id = data.get('request_id')
+
+    # Find the friend request
+    friend_request = Friend.query.filter_by(id=request_id, friend_id=current_user.id, status="pending").first()
+    if not friend_request:
+        return jsonify({'error': 'Friend request not found'}), 404
+
+    # Update the status to accepted
+    friend_request.status = "accepted"
+
+    # Create reciprocal friend relationship 
+    sender_id = friend_request.user_id
+    reciprocal_friend = Friend(user_id=current_user.id, friend_id=sender_id, status="accepted")
+    db.session.add(reciprocal_friend)
+    db.session.commit()
+    
+    # Get sender user object for notification
+    sender = User.query.get(sender_id)
+    
+    # Send WebSocket notifications to both users
+    send_notification_to_user(current_user.id, 'friend_accepted', {
+        'friend_id': sender_id,
+        'friend_name': sender.username,
+        'profile_picture': url_for('static', filename='images/default_profile.png')
+    })
+    
+    send_notification_to_user(sender_id, 'friend_accepted', {
+        'friend_id': current_user.id,
+        'friend_name': current_user.username,
+        'profile_picture': url_for('static', filename='images/default_profile.png')
+    })
+
+    return jsonify({
+        'message': 'Friend request accepted!',
+        'friend': {
+            'id': sender_id,
+            'name': sender.username,
+            'profile_picture': url_for('static', filename='images/default_profile.png')
+        }
+    })
+
+# Rejecting friend requests
+@app.route('/api/friends/reject', methods=['POST'])
+@login_required
+def reject_friend_request():
+    data = request.json
+    request_id = data.get('request_id')
+
+    # Find the friend request
+    friend_request = Friend.query.filter_by(id=request_id, friend_id=current_user.id, status="pending").first()
+    if not friend_request:
+        return jsonify({'error': 'Friend request not found'}), 404
+        
+    # Store the sender ID before deleting
+    sender_id = friend_request.user_id
+
+    # Delete the request
+    db.session.delete(friend_request)
+    db.session.commit()
+    
+    # Send WebSocket notification to the sender that their request was rejected
+    send_notification_to_user(sender_id, 'friend_rejected', {
+        'user_id': current_user.id,
+        'username': current_user.username
+    })
+
+    return jsonify({'message': 'Friend request rejected!'})
+
+# Removing friends
+@app.route('/api/friends/remove', methods=['POST'])
+@login_required
+def remove_friend():
+    data = request.json
+    friend_id = data.get('friend_id')
+
+    if not friend_id:
+        return jsonify({'error': 'Friend ID is required'}), 400
+
+    # Find both friendship records (bidirectional)
+    friendship1 = Friend.query.filter_by(user_id=current_user.id, friend_id=friend_id, status="accepted").first()
+    friendship2 = Friend.query.filter_by(user_id=friend_id, friend_id=current_user.id, status="accepted").first()
+
+    if not friendship1 and not friendship2:
+        return jsonify({'error': 'Friendship not found'}), 404
+
+    # Remove both friendship records
+    if friendship1:
+        db.session.delete(friendship1)
+    if friendship2:
+        db.session.delete(friendship2)
+    db.session.commit()
+    
+    # Send WebSocket notification to the removed friend
+    send_notification_to_user(friend_id, 'friend_removed', {
+        'user_id': current_user.id,
+        'username': current_user.username
+    })
+
+    return jsonify({'message': 'Friend removed successfully!'})
+
+# Fetch user's notifications
+@app.route('/api/notifications', methods=['GET'])
+@login_required
+def get_notifications():
+    notifications = Notification.query.filter_by(user_id=current_user.id).order_by(Notification.created_at.desc()).limit(50).all()
+    
+    result = []
+    for notification in notifications:
+        # Get sender info if available
+        sender_info = None
+        if notification.sender_id:
+            sender = User.query.get(notification.sender_id)
+            if sender:
+                sender_info = {
+                    'id': sender.id,
+                    'username': sender.username,
+                    'profile_picture': url_for('static', filename='images/default_profile.png')  # Replace with actual profile picture
+                }
+        
+        # Format the notification
+        result.append({
+            'id': notification.id,
+            'type': notification.type,
+            'message': notification.message,
+            'data': json.loads(notification.data) if notification.data else {},
+            'sender': sender_info,
+            'is_read': notification.is_read,
+            'created_at': notification.created_at.isoformat()
+        })
+    
+    return jsonify(result)
+
+# Mark notification as read
+@app.route('/api/notifications/mark-read', methods=['POST'])
+@login_required
+def mark_notification_read():
+    data = request.json
+    notification_id = data.get('notification_id')
+    
+    if notification_id:
+        # Mark specific notification as read
+        notification = Notification.query.filter_by(id=notification_id, user_id=current_user.id).first()
+        if notification:
+            notification.is_read = True
+            db.session.commit()
+            return jsonify({'success': True, 'message': 'Notification marked as read'})
+        else:
+            return jsonify({'success': False, 'error': 'Notification not found'}), 404
+    else:
+        return jsonify({'success': False, 'error': 'Invalid request parameters'}), 400
+    
+@app.route('/api/notifications/mark-all-read', methods=['POST'])
+@login_required
+def mark_all_notifications_read():
+    notifications = Notification.query.filter_by(user_id=current_user.id, is_read=False).all()
+    for n in notifications:
+        n.is_read = True
+    db.session.commit()
+    return jsonify({'success': True, 'message': 'All notifications marked as read'})
 
 # Error Handlers (Example)
 @app.errorhandler(404)

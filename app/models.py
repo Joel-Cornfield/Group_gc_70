@@ -53,15 +53,13 @@ class Game(db.Model):
     guesses = db.relationship("LocationGuess", back_populates="game", cascade="all, delete-orphan")
 
 class Stats(db.Model):
-    __tablename__ = "stats"
-
     id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
-    win_streak = db.Column(db.Integer, nullable=True)
-    total_wins = db.Column(db.Integer, nullable=True)
-    win_percentage = db.Column(db.Float, nullable=True)
-    total_games = db.Column(db.Integer, nullable=True)
-    time_spent = db.Column(db.Integer, nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)  # Foreign key to User
+    total_games = db.Column(db.Integer, default=0)
+    total_wins = db.Column(db.Integer, default=0)
+    win_streak = db.Column(db.Integer, default=0)
+    time_spent = db.Column(db.Integer, default=0)
+    win_percentage = db.Column(db.Float, default=0.0)
     start_date = db.Column(db.DateTime, nullable=False)
 
 class Location(db.Model):

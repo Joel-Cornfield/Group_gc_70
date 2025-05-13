@@ -59,7 +59,7 @@
       {% endif %}
       <div class="dropdown">
         <a class="nav-link dropdown-toggle d-flex align-items-center mx-2" href="#" role="button" data-bs-toggle="dropdown">
-          <img src="{{ user.profile_picture or url_for('static', filename='images/defaultprofile.png') }}" alt="Profile Avatar" class="avatar-img">
+          <img src="{{ url_for('static', filename=user.profile_picture if user.profile_picture else 'images/defaultprofile.png') }}" alt="Profile Avatar" class="avatar-img">
         </a>
         <ul class="dropdown-menu dropdown-menu-end">
           {% if user.is_authenticated %}

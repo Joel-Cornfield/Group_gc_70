@@ -1,4 +1,5 @@
 import random
+import os
 from flask import render_template, redirect, url_for, flash, request, jsonify 
 from flask_login import login_user, logout_user, login_required, current_user
 from werkzeug.utils import secure_filename
@@ -9,6 +10,7 @@ from app.game_logic import process_guess
 from app.socket_events import send_notification_to_user
 from datetime import datetime
 from app.models import Notification
+
 
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'} 
 
@@ -144,30 +146,33 @@ def change_password():
     return redirect(url_for('profile', user_id=current_user.id))
 
 # Upload Profile Picture Route
-@app.route('/upload-profile-picture', methods=['POST'])  
-@login_required 
-def upload_profile_picture():  
-    if 'profile_picture' not in request.files: 
-        flash('No file part', 'warning') 
-        return redirect(url_for('profile', user_id=current_user.id)) 
+from werkzeug.utils import secure_filename
+import os
 
-    file = request.files['profile_picture']  
-    if file.filename == '': 
-        flash('No selected file', 'warning') 
-        return redirect(url_for('profile', user_id=current_user.id))  
+@app.route('/upload_profile_picture', methods=['POST'])
+@login_required
+def upload_profile_picture():
+    file = request.files.get('profile_picture')
+    
+    if not file or file.filename == '':
+        flash('No file selected', 'danger')
+        return redirect(url_for('profile', user_id=current_user.id))
 
-    if file and allowed_file(file.filename): 
-        filename = secure_filename(file.filename) 
-        filepath = os.path.join(app.static_folder, 'uploads', filename)  
-        file.save(filepath) 
+    # Make sure uploads folder exists
+    upload_folder = os.path.join(app.static_folder, 'uploads')
+    os.makedirs(upload_folder, exist_ok=True)
 
-        current_user.profile_picture = f'uploads/{filename}' 
-        db.session.commit()  
-        flash('Profile picture updated successfully!', 'success')  
-    else:  
-        flash('Invalid file type', 'danger')  
+    # Secure and save filename
+    filename = secure_filename(file.filename)
+    filepath = os.path.join(upload_folder, filename)
+    file.save(filepath)
 
-    return redirect(url_for('profile', user_id=current_user.id))  
+    # Save relative path in database
+    current_user.profile_picture = f'uploads/{filename}'
+    db.session.commit()
+
+    flash('Profile picture updated!', 'success')
+    return redirect(url_for('profile', user_id=current_user.id))
 
 
 # Leaderboard/Statistics Page (Example, would need more info)

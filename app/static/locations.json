@@ -28,5 +28,47 @@
         "latitude": -31.9828759, 
         "longitude": 115.8203575,
         "department": "Indegenous Studies"
+    },
+    { 
+        "name": "Oak Lawn", 
+        "latitude": -31.980321, 
+        "longitude": 115.819648,
+        "department": "Other"
+    },
+    {
+        "name": "Winthrop Hall", 
+        "latitude": -31.977001, 
+        "longitude": 115.817544,
+        "department": "Other"
+    },
+    {
+        "name": "Computer Science Building", 
+        "latitude": -31.977489,  
+        "longitude": 115.816477,
+        "department": "Computer Science"
+    },
+    {
+        "name": "Engineering Building",
+        "latitude": -31.980616, 
+        "longitude": 115.817128,
+        "department": "Engineering"
+    },
+    {
+        "name": "UWA Aquatics Centre (Pool)",
+        "latitude": -31.985705, 
+        "longitude": 115.818537,
+        "department": "Sports"
+    },
+    {
+        "name": "Business School",
+        "latitude": -31.985832, 
+        "longitude": 115.820464,
+        "department": "Business"
+    },
+    {
+        "name": "Reid Library",
+        "latitude": -31.978727,
+        "longitude": 115.818222,
+        "department": "Other"
     }
 ]

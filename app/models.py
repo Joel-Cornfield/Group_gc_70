@@ -12,6 +12,8 @@ class User(db.Model, UserMixin):
     password_hash = db.Column(db.String(128), nullable=False)
     first_name = db.Column(db.String(120), nullable=False)
     last_name = db.Column(db.String(120), nullable=False)
+    profile_picture_data = db.Column(db.LargeBinary, nullable=True) 
+    profile_picture_mimetype = db.Column(db.String(50), nullable=True)
     admin = db.Column(db.Boolean, default=False)
 
     friends = db.relationship("Friend", back_populates="user", foreign_keys="Friend.user_id")

@@ -8,6 +8,8 @@ from app.forms import LoginForm, RegistrationForm, ProfilePictureForm, ChangePas
 from app.models import User, Game, Stats, Location, Hint, Friend
 from app import db, app
 from app.game_logic import process_guess
+from werkzeug.utils import secure_filename
+import os
 from app.socket_events import send_notification_to_user
 from datetime import datetime
 from app.models import Notification
@@ -61,7 +63,7 @@ def play():
     # Return game data as JSON
     return jsonify({
         'game_id': game.id,
-        'guess_image': url_for('static', filename=f'images/{location.name.replace(" ", "_")}.jpg'),
+        'guess_image': url_for('location_image', location_id=location.id),
     })
 
 @app.route('/guess', methods=['POST'])
@@ -597,4 +599,96 @@ def internal_error(error):
     db.session.rollback()
     return render_template('500.html'), 500
 
+@app.route('/admin', methods=['GET', 'POST'])
+@login_required
+def admin_page():
+    if not current_user.admin:
+        flash('You do not have permission to access this page.', 'danger')
+        return redirect(url_for('home'))
 
+    locations = Location.query.all()
+    serialized_locations = [
+        {
+            'id': location.id,
+            'name': location.name,
+            'latitude': location.latitude,
+            'longitude': location.longitude,
+            'department': location.department,
+            'hints': [{'id': hint.id, 'text': hint.text} for hint in location.hints]
+        }
+        for location in locations
+    ]
+
+    if request.method == 'POST':
+        # Check if updating an existing location
+        location_id = request.form.get('location_id')
+        location = Location.query.get(location_id) if location_id else None
+
+        # Get form data
+        location_name = request.form.get('location_name')
+        latitude = request.form.get('latitude')
+        longitude = request.form.get('longitude')
+        department = request.form.get('department')
+        hints = request.form.getlist('hints')
+        image = request.files.get('image')
+
+        if not location_name or not latitude or not longitude:
+            flash('Name, latitude, and longitude are required.', 'danger')
+            return redirect(url_for('admin_page'))
+
+        if location:  # Update existing location
+            location.name = location_name
+            location.latitude = float(latitude)
+            location.longitude = float(longitude)
+            location.department = department
+
+            # Update image if a new one is uploaded
+            if image:
+                location.image_data = image.read()
+                location.image_mimetype = image.mimetype
+
+            # Update hints
+            location.hints.clear()  # Remove existing hints
+            for hint_text in hints:
+                if hint_text.strip():
+                    hint = Hint(location=location, text=hint_text.strip())
+                    db.session.add(hint)
+
+            flash('Location updated successfully!', 'success')
+        else:  # Create a new location
+            # Read the image data
+            image_data = image.read() if image else None
+            image_mimetype = image.mimetype if image else None
+
+            # Create a new location
+            location = Location(
+                name=location_name,
+                latitude=float(latitude),
+                longitude=float(longitude),
+                department=department,
+                image_data=image_data,
+                image_mimetype=image_mimetype
+            )
+            db.session.add(location)
+
+            # Add hints
+            for hint_text in hints:
+                if hint_text.strip():
+                    hint = Hint(location=location, text=hint_text.strip())
+                    db.session.add(hint)
+
+            flash('Location added successfully!', 'success')
+
+        db.session.commit()
+        return redirect(url_for('admin_page'))
+
+    return render_template('admin.html', user=current_user, locations=serialized_locations)
+
+
+@app.route('/location_image/<int:location_id>')
+def location_image(location_id):
+    location = Location.query.get(location_id)
+    if not location or not location.image_data:
+        return jsonify({'error': 'Image not found'}), 404
+
+    return app.response_class(location.image_data, mimetype=location.image_mimetype)

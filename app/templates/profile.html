@@ -100,12 +100,27 @@
           <div class="card-body">
             <div class="d-flex flex-column flex-md-row align-items-center align-items-md-start">
               <div class="position-relative mb-3 mb-md-0">
-                <form method="POST" action="{{ url_for('upload_profile_picture') }}" enctype="multipart/form-data">
+                <form id="profile-pic-form" method="POST" action="{{ url_for('upload_profile_picture') }}" enctype="multipart/form-data">
                   {{ profile_picture_form.hidden_tag() }}
                   <img src="{{ url_for('profile_picture', user_id=user.id) }}" alt="Avatar" class="rounded-circle profile-pic mb-2">
-                  {{ profile_picture_form.profile_picture(class="form-control mb-2") }}
-                  {{ profile_picture_form.submit(class="btn btn-dark btn-sm") }}
-                </form>                
+
+                  <!-- Hidden file input -->
+                  {{ profile_picture_form.profile_picture(class="d-none", id="profilePictureInput") }}
+
+                  <!-- Edit icon triggers file input -->
+                  <button type="button" class="btn btn-dark btn-sm edit-btn" onclick="document.getElementById('profilePictureInput').click();">
+                    <i class="bi bi-pencil-fill"></i>
+                  </button>
+
+                  <!-- Submit button is hidden, form submits on file change -->
+                  {{ profile_picture_form.submit(class="d-none", id="submitProfilePic") }}
+                </form>
+                <script>
+                  // Auto-submit form when file is selected
+                  document.getElementById('profilePictureInput').addEventListener('change', function() {
+                    document.getElementById('submitProfilePic').click();
+                  });
+                </script>
               </div>
               <div class="user-info text-center text-md-start">
                 <h3 class="fw-bold mb-1">{{ user.first_name }} {{ user.last_name }}</h3>

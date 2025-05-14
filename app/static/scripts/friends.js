@@ -361,7 +361,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
                     listItem.innerHTML = `
                         <div class="d-flex align-items-center">
-                            <img src="${friend.profile_picture}" alt="Friend Avatar" class="me-3 shadow-sm" style="width: 50px; height: 50px; border-radius: 50%; object-fit: cover;">
+                            <img src="/profile_picture/${friend.id}" alt="Friend Avatar" class="me-3 shadow-sm" style="width: 50px; height: 50px; border-radius: 50%; object-fit: cover;">
                             <div>
                                 <a href="/analyticpage/${friend.id}" class="fw-semibold text-decoration-none link-dark hover-link">
                                     ${friend.name}

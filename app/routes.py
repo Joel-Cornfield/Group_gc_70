@@ -161,7 +161,7 @@ def analytic_page(user_id):
         "total_wins_rank": get_rank(total_wins_leaderboard, user.username),
         "win_percentage": f"{stats.win_percentage:.2f}%" if stats.win_percentage is not None else "N/A",
         "win_percentage_rank": get_rank(win_percentage_leaderboard, user.username),
-        "start_date": stats.start_date.strftime('%B %d, %Y') if stats.created_at else "Unknown"
+        "start_date": stats.start_date.strftime('%B %d, %Y') if stats.start_date else "Unknown"
     }
 
     return render_template(

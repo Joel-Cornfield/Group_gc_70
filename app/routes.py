@@ -1,5 +1,6 @@
 import random
 import os
+import json
 from flask import render_template, redirect, url_for, flash, request, jsonify 
 from flask_login import login_user, logout_user, login_required, current_user
 from werkzeug.utils import secure_filename
@@ -27,7 +28,6 @@ def allowed_file(filename):
 """
 This file contains the route definitions for the Flask application. Almost all of these endpoints are skeletolns and are not fully implemented yet.
 """
-# Most of these pages will require user info to be passed to them(username, info for dropdown), but for now they are just placeholders.
 
 # Home Page
 @app.route('/')
@@ -153,26 +153,30 @@ import os
 @login_required
 def upload_profile_picture():
     file = request.files.get('profile_picture')
-    
+
     if not file or file.filename == '':
         flash('No file selected', 'danger')
         return redirect(url_for('profile', user_id=current_user.id))
 
-    # Make sure uploads folder exists
-    upload_folder = os.path.join(app.static_folder, 'uploads')
-    os.makedirs(upload_folder, exist_ok=True)
+    if not allowed_file(file.filename):
+        flash('Invalid file type. Please upload an image file.', 'danger')
+        return redirect(url_for('profile', user_id=current_user.id))
 
-    # Secure and save filename
-    filename = secure_filename(file.filename)
-    filepath = os.path.join(upload_folder, filename)
-    file.save(filepath)
-
-    # Save relative path in database
-    current_user.profile_picture = f'uploads/{filename}'
+    # Save the file's binary data and mimetype to the database
+    current_user.profile_picture_data = file.read()
+    current_user.profile_picture_mimetype = file.mimetype
     db.session.commit()
 
     flash('Profile picture updated!', 'success')
     return redirect(url_for('profile', user_id=current_user.id))
+
+@app.route('/profile_picture/<int:user_id>')
+def profile_picture(user_id):
+    user = User.query.get_or_404(user_id)
+    if not user.profile_picture_data:
+        # Return a default profile picture if none is set
+        return redirect(url_for('static', filename='images/defaultprofile.png'))
+    return app.response_class(user.profile_picture_data, mimetype=user.profile_picture_mimetype)
 
 
 # Leaderboard/Statistics Page (Example, would need more info)
@@ -315,22 +319,24 @@ def get_friends():
         (Friend.status == "accepted")
     ).all()
 
-    # Use a set to track unique friend IDs
-    unique_friend_ids = set()
-    friends_list = []
+    # Use a dictionary to store friend details (to avoid duplicates)
+    friends_dict = {}
 
     for friend in friends:
         # Determine the friend's ID (exclude the current user)
         friend_id = friend.friend_id if friend.user_id == current_user.id else friend.user_id
 
-        # Add to the list only if not already added
-        if friend_id not in unique_friend_ids:
-            unique_friend_ids.add(friend_id)
-            friends_list.append({
-                'id': friend_id,
-                'name': User.query.get(friend_id).username,
-                'profile_picture': url_for('static', filename='images/default_profile.png')  # Placeholder
-            })
+        # Avoid duplicates by using a dictionary
+        if friend_id not in friends_dict:
+            friend_user = User.query.get(friend_id)
+            friends_dict[friend_id] = {
+                'id': friend_user.id,
+                'name': friend_user.username,
+                'profile_picture': url_for('profile_picture', user_id=friend_user.id)
+            }
+
+    # Convert the dictionary values to a list
+    friends_list = list(friends_dict.values())
 
     return jsonify(friends_list)
 
@@ -410,7 +416,7 @@ def get_friend_requests():
             'id': request.id,
             'user_id': request.user_id,
             'name': User.query.get(request.user_id).username,
-            'profile_picture': url_for('static', filename='images/default_profile.png')  # Placeholder
+            'profile_picture':  url_for('profile_picture', user_id=request.user_id)
         }
         for request in requests
     ]
@@ -537,7 +543,7 @@ def get_notifications():
                 sender_info = {
                     'id': sender.id,
                     'username': sender.username,
-                    'profile_picture': url_for('static', filename='images/default_profile.png')  # Replace with actual profile picture
+                    'profile_picture':  url_for('profile_picture', user_id=sender.id)
                 }
         
         # Format the notification
@@ -590,4 +596,5 @@ def not_found_error(error):
 def internal_error(error):
     db.session.rollback()
     return render_template('500.html'), 500
+
 

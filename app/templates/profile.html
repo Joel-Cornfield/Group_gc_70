@@ -53,7 +53,7 @@
         {% endif %}
         <div class="dropdown">
           <a class="nav-link dropdown-toggle d-flex align-items-center mx-2" href="#" role="button" data-bs-toggle="dropdown">
-            <img src="{{ url_for('static', filename=user.profile_picture if user.profile_picture else 'images/defaultprofile.png') }}" class="avatar-img">
+            <img src="{{ url_for('profile_picture', user_id=user.id) }}" class="avatar-img">
           </a>
           <ul class="dropdown-menu dropdown-menu-end">
             {% if user.is_authenticated %}
@@ -96,7 +96,7 @@
               <div class="position-relative mb-3 mb-md-0">
                 <form method="POST" action="{{ url_for('upload_profile_picture') }}" enctype="multipart/form-data">
                   {{ profile_picture_form.hidden_tag() }}
-                  <img src="{{ url_for('static', filename=user.profile_picture or 'images/defaultprofile.png') }}" alt="Avatar" class="rounded-circle profile-pic mb-2">
+                  <img src="{{ url_for('profile_picture', user_id=user.id) }}" alt="Avatar" class="rounded-circle profile-pic mb-2">
                   {{ profile_picture_form.profile_picture(class="form-control mb-2") }}
                   {{ profile_picture_form.submit(class="btn btn-dark btn-sm") }}
                 </form>                

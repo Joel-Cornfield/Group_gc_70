@@ -63,7 +63,7 @@
       <div class="dropdown">
         <a class="nav-link dropdown-toggle d-flex align-items-center mx-2" href="#" role="button" data-bs-toggle="dropdown">
           {% if user.is_authenticated %}
-            <img src="{{ url_for('profile_picture', user_id=user.id) }}" alt="Profile Avatar" class="avatar-img">
+            <img src="{{ url_for('main.profile_picture', user_id=user.id) }}" alt="Profile Avatar" class="avatar-img">
           {% else %}
             <img src="{{ url_for('static', filename='images/defaultprofile.png') }}" alt="Default Avatar" class="avatar-img">
           {% endif %}

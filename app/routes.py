@@ -1,18 +1,13 @@
 import random
-import os
 import json 
 from flask import render_template, redirect, url_for, flash, request, jsonify , current_app
 from flask_login import login_user, logout_user, login_required, current_user
-from werkzeug.utils import secure_filename
 from app.forms import LoginForm, RegistrationForm, ProfilePictureForm, ChangePasswordForm
 from app.models import User, Game, Stats, Location, Hint, Friend, Notification
 from app import db
 from app.game_logic import process_guess
-from werkzeug.utils import secure_filename
-import os
 from app.socket_events import send_notification_to_user
-from datetime import datetime
-from app.blueprints import main  # Make sure this is from app.blueprints
+from app.blueprints import main 
 
 
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'} 
@@ -131,7 +126,7 @@ def profile(user_id):
     return render_template('profile.html', user=current_user, stats=stats, profile_picture_form=profile_picture_form, change_password_form=change_password_form)
 
 # Change Password Route
-@app.route('/change_password', methods=['POST'])
+@main.route('/change_password', methods=['POST'])
 @login_required
 def change_password():
     form = ChangePasswordForm()
@@ -145,13 +140,10 @@ def change_password():
     else:
         flash('Please fix the errors in the form.', 'danger')
     
-    return redirect(url_for('profile', user_id=current_user.id))
+    return redirect(url_for('main.profile', user_id=current_user.id))
 
-# Upload Profile Picture Route
-from werkzeug.utils import secure_filename
-import os
 
-@app.route('/upload_profile_picture', methods=['POST'])
+@main.route('/upload_profile_picture', methods=['POST'])
 @login_required
 def upload_profile_picture():
     file = request.files.get('profile_picture')
@@ -172,13 +164,13 @@ def upload_profile_picture():
     flash('Profile picture updated!', 'success')
     return redirect(url_for('profile', user_id=current_user.id))
 
-@app.route('/profile_picture/<int:user_id>')
+@main.route('/profile_picture/<int:user_id>')
 def profile_picture(user_id):
     user = User.query.get_or_404(user_id)
     if not user.profile_picture_data:
         # Return a default profile picture if none is set
         return redirect(url_for('static', filename='images/defaultprofile.png'))
-    return app.response_class(user.profile_picture_data, mimetype=user.profile_picture_mimetype)
+    return main.response_class(user.profile_picture_data, mimetype=user.profile_picture_mimetype)
 
 
 # Leaderboard/Statistics Page (Example, would need more info)

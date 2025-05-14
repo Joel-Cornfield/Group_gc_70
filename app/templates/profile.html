@@ -56,7 +56,7 @@
         {% endif %}
         <div class="dropdown">
           <a class="nav-link dropdown-toggle d-flex align-items-center mx-2" href="#" role="button" data-bs-toggle="dropdown">
-            <img src="{{ url_for('profile_picture', user_id=user.id) }}" class="avatar-img">
+            <img src="{{ url_for('main.profile_picture', user_id=user.id) }}" class="avatar-img">
           </a>
           <ul class="dropdown-menu dropdown-menu-end">
             {% if user.is_authenticated %}
@@ -100,9 +100,9 @@
           <div class="card-body">
             <div class="d-flex flex-column flex-md-row align-items-center align-items-md-start">
               <div class="position-relative mb-3 mb-md-0">
-                <form id="profile-pic-form" method="POST" action="{{ url_for('upload_profile_picture') }}" enctype="multipart/form-data">
+                <form id="profile-pic-form" method="POST" action="{{ url_for('main.upload_profile_picture') }}" enctype="multipart/form-data">
                   {{ profile_picture_form.hidden_tag() }}
-                  <img src="{{ url_for('profile_picture', user_id=user.id) }}" alt="Avatar" class="rounded-circle profile-pic mb-2">
+                  <img src="{{ url_for('main.profile_picture', user_id=user.id) }}" alt="Avatar" class="rounded-circle profile-pic mb-2">
 
                   <!-- Hidden file input -->
                   {{ profile_picture_form.profile_picture(class="d-none", id="profilePictureInput") }}
@@ -140,7 +140,7 @@
             <h5 class="mb-0"><i class="bi bi-gear-fill me-2"></i>Account Settings</h5>
           </div>
           <div class="card-body">
-            <form method="POST" action="{{ url_for('change_password') }}">
+            <form method="POST" action="{{ url_for('main.change_password') }}">
               {{ change_password_form.hidden_tag() }}
               <div class="settings-section">
                 <div class="section-header">

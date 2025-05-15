@@ -56,6 +56,8 @@ def process_guess(game_id, user_id, data):
         distance_error_meters=distance,
     )
     db.session.add(guess)
+    db.session.commit()
+    
 
     # Check if the game should be finalized
     if distance <= 25:  # Correct guess threshold
@@ -66,7 +68,6 @@ def process_guess(game_id, user_id, data):
     else:
         game.total_score = max(0, game.total_score-25) 
     db.session.commit()
-
     return {'guesses': [serialize_guess(g) for g in game.guesses], 'score': game.total_score}
 
 def submit_game(game, user_id, success):

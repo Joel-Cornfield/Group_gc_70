@@ -1,18 +1,14 @@
+import datetime
 import random
-import os
-import json
-from flask import render_template, redirect, url_for, flash, request, jsonify 
+import json 
+from flask import render_template, redirect, url_for, flash, request, jsonify , current_app
 from flask_login import login_user, logout_user, login_required, current_user
-from werkzeug.utils import secure_filename
 from app.forms import LoginForm, RegistrationForm, ProfilePictureForm, ChangePasswordForm, UpdateProfileForm
-from app.models import User, Game, Stats, Location, Hint, Friend
-from app import db, app
+from app.models import User, Game, Stats, Location, Hint, Friend, Notification
+from app import db
 from app.game_logic import process_guess
-from werkzeug.utils import secure_filename
-import os
 from app.socket_events import send_notification_to_user
-from datetime import datetime
-from app.models import Notification
+from app.blueprints import main 
 from sqlalchemy import and_
 
 
@@ -33,17 +29,17 @@ This file contains the route definitions for the Flask application. Almost all o
 """
 
 # Home Page
-@app.route('/')
-@app.route('/home')
+@main.route('/')
+@main.route('/home')
 def home():
     return render_template('home.html', user=current_user)
 
 # Game Page
-@app.route('/game')
+@main.route('/game')
 def game():
     return render_template('game.html', user=current_user)
 
-@app.route('/play', methods=['GET'])
+@main.route('/play', methods=['GET'])
 def play():
     # Load locations from the JSON file
     location = Location.query.order_by(db.func.random()).first()
@@ -64,10 +60,10 @@ def play():
     # Return game data as JSON
     return jsonify({
         'game_id': game.id,
-        'guess_image': url_for('location_image', location_id=location.id),
+        'guess_image': url_for('main.location_image', location_id=location.id),
     })
 
-@app.route('/guess', methods=['POST'])
+@main.route('/guess', methods=['POST'])
 def guess():
     data = request.json
     if current_user.is_authenticated:
@@ -75,7 +71,7 @@ def guess():
     else:
         return jsonify(process_guess(data['game_id'], None, data))
 
-@app.route('/hint/<int:game_id>', methods=['POST'])
+@main.route('/hint/<int:game_id>', methods=['POST'])
 def get_hint(game_id):
     # Fetch the game
     game = Game.query.get(game_id)
@@ -103,7 +99,7 @@ def get_hint(game_id):
     return jsonify({'hint': hint,'score': game.total_score})
 
 
-@app.route('/unblur/<int:game_id>', methods=['POST'])
+@main.route('/unblur/<int:game_id>', methods=['POST'])
 def unblur(game_id):
     # Fetch the game
     game = Game.query.get(game_id)
@@ -113,9 +109,15 @@ def unblur(game_id):
     game.total_score = max(0, game.total_score-20)  # Deduct score for unblur usage
     db.session.commit()
     return jsonify({'score': game.total_score})
+    
+
+# How to Play Page
+@main.route('/howtoplay')
+def how_to_play():
+    return render_template('howtoplay.html', user=current_user)
 
 # Profile Page (Example)
-@app.route('/profile/<int:user_id>')
+@main.route('/profile/<int:user_id>')
 @login_required
 def profile(user_id):
     user = User.query.get_or_404(user_id)
@@ -127,7 +129,7 @@ def profile(user_id):
     return render_template('profile.html', user=current_user, stats=stats, profile_picture_form=profile_picture_form, change_password_form=change_password_form, update_profile_form=update_profile_form)
 
 # Update Profile Route
-@app.route('/update_profile', methods=['POST'])
+@main.route('/update_profile', methods=['POST'])
 @login_required
 def update_profile():
     form = UpdateProfileForm()
@@ -137,10 +139,10 @@ def update_profile():
         current_user.last_name = form.last_name.data
         db.session.commit()
         flash("Profile updated successfully", "success")
-    return redirect(url_for('profile', user_id=current_user.id))
+    return redirect(url_for('main.profile', user_id=current_user.id))
 
 # Change Password Route
-@app.route('/change_password', methods=['POST'])
+@main.route('/change_password', methods=['POST'])
 @login_required
 def change_password():
     form = ChangePasswordForm()
@@ -154,22 +156,21 @@ def change_password():
     else:
         flash('Please fix the errors in the form.', 'danger')
     
-    return redirect(url_for('profile', user_id=current_user.id))
+    return redirect(url_for('main.profile', user_id=current_user.id))
 
-# Upload Profile Picture Route
 
-@app.route('/upload_profile_picture', methods=['POST'])
+@main.route('/upload_profile_picture', methods=['POST'])
 @login_required
 def upload_profile_picture():
     file = request.files.get('profile_picture')
 
     if not file or file.filename == '':
         flash('No file selected', 'danger')
-        return redirect(url_for('profile', user_id=current_user.id))
+        return redirect(url_for('main.profile', user_id=current_user.id))
 
     if not allowed_file(file.filename):
         flash('Invalid file type. Please upload an image file.', 'danger')
-        return redirect(url_for('profile', user_id=current_user.id))
+        return redirect(url_for('main.profile', user_id=current_user.id))
 
     # Save the file's binary data and mimetype to the database
     current_user.profile_picture_data = file.read()
@@ -177,19 +178,19 @@ def upload_profile_picture():
     db.session.commit()
 
     flash('Profile picture updated!', 'success')
-    return redirect(url_for('profile', user_id=current_user.id))
+    return redirect(url_for('main.profile', user_id=current_user.id))
 
-@app.route('/profile_picture/<int:user_id>')
+@main.route('/profile_picture/<int:user_id>')
 def profile_picture(user_id):
     user = User.query.get_or_404(user_id)
     if not user.profile_picture_data:
         # Return a default profile picture if none is set
         return redirect(url_for('static', filename='images/defaultprofile.png'))
-    return app.response_class(user.profile_picture_data, mimetype=user.profile_picture_mimetype)
+    return main.response_class(user.profile_picture_data, mimetype=user.profile_picture_mimetype)
 
 
 # Leaderboard/Statistics Page (Example, would need more info)
-@app.route('/analyticpage/<int:user_id>')
+@main.route('/analyticpage/<int:user_id>')
 @login_required
 def analytic_page(user_id):
     user = User.query.get_or_404(user_id)
@@ -207,7 +208,7 @@ def analytic_page(user_id):
 
     if user_id != current_user.id and not is_friend:
         flash("You are not authorized to view this analytics page.", "danger")
-        return redirect(url_for('home'))
+        return redirect(url_for('main.home'))
 
     # Leaderboards
     win_streak_leaderboard = Stats.query.join(User).with_entities(
@@ -276,7 +277,7 @@ def analytic_page(user_id):
 
 
 # API Endpoint: Get User Data (Example)
-@app.route('/api/user/<int:user_id>', methods=['GET'])
+@main.route('/api/user/<int:user_id>', methods=['GET'])
 def get_user(user_id):
     user = User.query.get_or_404(user_id)
     return jsonify({
@@ -288,7 +289,7 @@ def get_user(user_id):
     })
 
 # API Endpoint: Submit Game Data (Example)
-@app.route('/api/submit_game', methods=['POST'])
+@main.route('/api/submit_game', methods=['POST'])
 def submit_game():
     data = request.json
     game = Game(
@@ -318,32 +319,31 @@ def submit_game():
     return jsonify({'message': 'Game data submitted successfully!'})
 
 # Auth Page 
-@app.route('/auth')
+@main.route('/auth')
 def auth():
     login_form = LoginForm()
     registration_form = RegistrationForm()
     return render_template('auth.html', user=current_user, login_form=login_form, signup_form=registration_form, tab='login')
 
 # Login Form Submission 
-@app.route('/auth/login', methods=['GET', 'POST'])
+@main.route('/auth/login', methods=['GET', 'POST'])
 def login():
     if current_user.is_authenticated:
-        return redirect(url_for('home'))
+        return redirect(url_for('main.home'))
     login_form = LoginForm()
     signup_form = RegistrationForm()
     if login_form.validate_on_submit():
         user = User.query.filter_by(username=login_form.username.data).first()
         if user and user.check_password(login_form.password.data):
             login_user(user)
-            return redirect(url_for('home')) 
+            return redirect(url_for('main.home')) 
     return render_template('auth.html', user=current_user, login_form=login_form, signup_form=signup_form, tab='login')
 
 # Registration Form Submission 
-# Registration Form Submission 
-@app.route('/auth/signup', methods=['GET', 'POST'])
+@main.route('/auth/signup', methods=['GET', 'POST'])
 def signup():
     if current_user.is_authenticated:
-        return redirect(url_for('home'))
+        return redirect(url_for('main.home'))
     signup_form = RegistrationForm()
     if signup_form.validate_on_submit():
         # Check if email or username already exists
@@ -386,7 +386,7 @@ def signup():
             db.session.commit()  # Commit stats to the database
 
             flash("Account created successfully!", "success")
-            return redirect(url_for('login'))
+            return redirect(url_for('main.login'))
         except Exception as e:
             db.session.rollback()
             print(f"Error: {e}")
@@ -410,7 +410,7 @@ def signup():
 
 
 # Logout 
-@app.route('/auth/logout')
+@main.route('/auth/logout')
 @login_required
 def logout():
     # Delete all read notifications for current user before logout
@@ -421,10 +421,11 @@ def logout():
         db.session.rollback()
         flash('An error occurred while clearing notifications on logout. Please try again.', 'danger')
     logout_user()
-    return redirect(url_for('auth'))
+    flash('You have been logged out', 'success')
+    return redirect(url_for('main.auth'))
 
 # Fetch the current user's friends
-@app.route('/api/friends', methods=['GET'])
+@main.route('/api/friends', methods=['GET'])
 @login_required
 def get_friends():
     # Fetch all friends where the current user is either the sender or the recipient
@@ -446,7 +447,7 @@ def get_friends():
             friends_dict[friend_id] = {
                 'id': friend_user.id,
                 'name': friend_user.username,
-                'profile_picture': url_for('profile_picture', user_id=friend_user.id)
+                'profile_picture': url_for('main.profile_picture', user_id=friend_user.id)
             }
 
     # Convert the dictionary values to a list
@@ -455,7 +456,7 @@ def get_friends():
     return jsonify(friends_list)
 
 # Add a new friend
-@app.route('/api/friends/add', methods=['POST'])
+@main.route('/api/friends/add', methods=['POST'])
 @login_required
 def add_friend():
     data = request.json
@@ -521,7 +522,7 @@ def add_friend():
     return jsonify({'message': f'Friend request sent to {friend_username}!'})
 
 # Fetch pending friend requests
-@app.route('/api/friends/requests', methods=['GET'])
+@main.route('/api/friends/requests', methods=['GET'])
 @login_required
 def get_friend_requests():
     requests = Friend.query.filter_by(friend_id=current_user.id, status="pending").all()
@@ -530,14 +531,14 @@ def get_friend_requests():
             'id': request.id,
             'user_id': request.user_id,
             'name': User.query.get(request.user_id).username,
-            'profile_picture':  url_for('profile_picture', user_id=request.user_id)
+            'profile_picture':  url_for('main.profile_picture', user_id=request.user_id)
         }
         for request in requests
     ]
     return jsonify(requests_list)
 
 # Accept a friend request 
-@app.route('/api/friends/accept', methods=['POST'])
+@main.route('/api/friends/accept', methods=['POST'])
 @login_required
 def accept_friend_request():
     data = request.json
@@ -583,7 +584,7 @@ def accept_friend_request():
     })
 
 # Rejecting friend requests
-@app.route('/api/friends/reject', methods=['POST'])
+@main.route('/api/friends/reject', methods=['POST'])
 @login_required
 def reject_friend_request():
     data = request.json
@@ -610,7 +611,7 @@ def reject_friend_request():
     return jsonify({'message': 'Friend request rejected!'})
 
 # Removing friends
-@app.route('/api/friends/remove', methods=['POST'])
+@main.route('/api/friends/remove', methods=['POST'])
 @login_required
 def remove_friend():
     data = request.json
@@ -642,7 +643,7 @@ def remove_friend():
     return jsonify({'message': 'Friend removed successfully!'})
 
 # Fetch user's notifications
-@app.route('/api/notifications', methods=['GET'])
+@main.route('/api/notifications', methods=['GET'])
 @login_required
 def get_notifications():
     notifications = Notification.query.filter_by(user_id=current_user.id).order_by(Notification.created_at.desc()).limit(50).all()
@@ -657,7 +658,7 @@ def get_notifications():
                 sender_info = {
                     'id': sender.id,
                     'username': sender.username,
-                    'profile_picture':  url_for('profile_picture', user_id=sender.id)
+                    'profile_picture':  url_for('main.profile_picture', user_id=sender.id)
                 }
         
         # Format the notification
@@ -674,7 +675,7 @@ def get_notifications():
     return jsonify(result)
 
 # Mark notification as read
-@app.route('/api/notifications/mark-read', methods=['POST'])
+@main.route('/api/notifications/mark-read', methods=['POST'])
 @login_required
 def mark_notification_read():
     data = request.json
@@ -692,7 +693,7 @@ def mark_notification_read():
     else:
         return jsonify({'success': False, 'error': 'Invalid request parameters'}), 400
     
-@app.route('/api/notifications/mark-all-read', methods=['POST'])
+@main.route('/api/notifications/mark-all-read', methods=['POST'])
 @login_required
 def mark_all_notifications_read():
     notifications = Notification.query.filter_by(user_id=current_user.id, is_read=False).all()
@@ -701,22 +702,12 @@ def mark_all_notifications_read():
     db.session.commit()
     return jsonify({'success': True, 'message': 'All notifications marked as read'})
 
-# Error Handlers (Example)
-@app.errorhandler(404)
-def not_found_error(error):
-    return render_template('404.html'), 404
-
-@app.errorhandler(500)
-def internal_error(error):
-    db.session.rollback()
-    return render_template('500.html'), 500
-
-@app.route('/admin', methods=['GET', 'POST'])
+@main.route('/admin', methods=['GET', 'POST'])
 @login_required
 def admin_page():
     if not current_user.admin:
         flash('You do not have permission to access this page.', 'danger')
-        return redirect(url_for('home'))
+        return redirect(url_for('main.home'))
 
     locations = Location.query.all()
     serialized_locations = [
@@ -746,7 +737,7 @@ def admin_page():
 
         if not location_name or not latitude or not longitude:
             flash('Name, latitude, and longitude are required.', 'danger')
-            return redirect(url_for('admin_page'))
+            return redirect(url_for('main.admin_page'))
 
         if location:  # Update existing location
             location.name = location_name
@@ -792,15 +783,24 @@ def admin_page():
             flash('Location added successfully!', 'success')
 
         db.session.commit()
-        return redirect(url_for('admin_page'))
+        return redirect(url_for('main.admin_page'))
 
     return render_template('admin.html', user=current_user, locations=serialized_locations)
 
 
-@app.route('/location_image/<int:location_id>')
+@main.route('/location_image/<int:location_id>')
 def location_image(location_id):
     location = Location.query.get(location_id)
     if not location or not location.image_data:
         return jsonify({'error': 'Image not found'}), 404
+    return current_app.response_class(location.image_data, mimetype=location.image_mimetype)
 
-    return app.response_class(location.image_data, mimetype=location.image_mimetype)
+# Error Handlers (can be blueprint-scoped or app-wide)
+@main.app_errorhandler(404)
+def not_found_error(error):
+    return render_template('404.html'), 404
+
+@main.app_errorhandler(500)
+def internal_error(error):
+    db.session.rollback()
+    return render_template('500.html'), 500

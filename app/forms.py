@@ -55,6 +55,14 @@ class ChangePasswordForm(FlaskForm):
     ])
     submit = SubmitField('Change Password')
 
+# Edit Profile Form
+class UpdateProfileForm(FlaskForm):
+    username = StringField('Username', validators=[DataRequired()])
+    first_name = StringField('First Name', validators=[DataRequired()])
+    last_name = StringField('Last Name', validators=[DataRequired()])
+    submit = SubmitField('Save Changes')
+
+
 
 ### Location Form ###
 #class LocationForm(FlaskForm):

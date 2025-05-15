@@ -4,3 +4,10 @@ basedir = os.path.abspath(os.path.dirname(__file__))
 class Config(object):
     SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL') or \
         'sqlite:///' + os.path.join(basedir, 'app.db')
+
+class TestConfig:
+    TESTING = True
+    SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL') or \
+        'sqlite:///' + os.path.join(basedir, 'test.db')
+    SECRET_KEY = "test"
+    WTF_CSRF_ENABLED = False

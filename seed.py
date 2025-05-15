@@ -4,14 +4,66 @@ from app.models import User, Friend, Notification, Game, Stats, Location, Hint, 
 import json
 import random
 
+# Hints dictionary mapped by location name
+location_hints = {
+    "Psychology Building": [
+        "This building explores the workings of the human mind.",
+        "Near the Bayliss building"
+    ],
+    "Octagon Theatre": [
+        "Known for its dramatic flair.",
+        "A venue for performances, not lectures."
+    ],
+    "Mathematics Building": [
+        "Not far from Ezone",
+        "Algebra, calculus, and more live here."
+    ],
+    "Barry J Marshal Library": [
+        "Named after a Nobel laureate.",
+        "A quiet place to study with five floors."
+    ],
+    "Bilya Marlee Building": [
+        "Home to Indigenous knowledge and culture.",
+    ],
+    "Oak Lawn": [
+        "Often hosts club events and market days.",
+        "Near the law library.",
+        "In front of the refactory."
+    ],
+    "Winthrop Hall": [
+        "A grand hall with a reflection pool out front.",
+        "Often used for graduation ceremonies."
+    ],
+    "Computer Science Building": [
+        "Not far from the Lawrence Wilson Art Gallery.",
+        "The domain of compilers and algorithms."
+    ],
+    "Engineering Building": [
+        "Looks out onto James Oval.",
+        "Heavy machinery and hard hats might be nearby."
+    ],
+    "UWA Aquatics Centre (Pool)": [
+        "Not far from the business school.",
+        "Located at the very far end of the campus."
+    ],
+    "Business School": [
+        "Lots of sport facilities nearby.",
+        "Located at the very far end of the campus."
+    ],
+    "Reid Library": [
+        "One of the largest libraries on campus.",
+        "The main study hub of the campus."
+    ]
+}
+
 app = create_app()
+
 with app.app_context():
     db.drop_all()
     db.create_all()
 
     # --- Seed Users ---
     users = []
-
     admin = User(username="admin", email="admin@uwa.edu.au", first_name="Admin", last_name="User", admin=True)
     admin.set_password("admin")
     users.append(admin)
@@ -57,12 +109,13 @@ with app.app_context():
         db.session.add(location)
         locations.append(location)
 
-        for hint_text in loc_data.get("hints", []):
+        hints = location_hints.get(location.name, [])
+        for hint_text in hints:
             db.session.add(Hint(location=location, text=hint_text))
 
     db.session.flush()
 
-    # --- Seed Games and LocationGuesses ---
+    # --- Seed Games and Guesses ---
     for user in users:
         for _ in range(2):  # 2 games per user
             loc = random.choice(locations)
@@ -81,12 +134,10 @@ with app.app_context():
             db.session.add(game)
             db.session.flush()
 
-            # Add guesses
-            for _ in range(random.randint(2, 4)):
-                error = round(random.uniform(5, 150), 2)  # Simulated guess error in meters
+            for _ in range(random.randint(2, 4)):  # 2–4 guesses per game
                 guess = LocationGuess(
                     game_id=game.id,
-                    distance_error_meters=error
+                    distance_error_meters=round(random.uniform(5, 150), 2)
                 )
                 db.session.add(guess)
 

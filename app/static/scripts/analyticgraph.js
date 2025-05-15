@@ -1,46 +1,48 @@
-// This script generates a line chart using Chart.js to visualize the total guess time for each round in a game.
-  const allRounds = Array.from({ length: 120 }, (_, i) => `Round ${i + 1}`);
-  const allGuessTimes = Array.from({ length: 120 }, () => Math.floor(Math.random() * 100));
+(() => {
+  const labels = gameData.map((g, i) => `Game ${i + 1}`);
+  const durations = gameData.map(g => g.duration);
+  const pointColors = gameData.map(g => g.correct ? 'rgba(75, 192, 192, 1)' : 'rgba(255, 99, 132, 1)');
 
-  const maxPoints = 100;
-  const labels = allRounds.slice(0, maxPoints);
-  const data = allGuessTimes.slice(0, maxPoints);
-
-  const ctx = document.getElementById('guessTimeChart').getContext('2d');
-  const guessTimeChart = new Chart(ctx, {
+  new Chart(document.getElementById('guessTimeChart'), {
     type: 'line',
     data: {
       labels: labels,
       datasets: [{
-        label: 'Total Guess Time (seconds)',
-        data: data,
-        backgroundColor: 'rgba(0, 123, 255, 0.1)',
-        borderColor: '#007bff',
-        borderWidth: 2,
-        pointBackgroundColor: '#007bff',
-        tension: 0.3
+        label: 'Guess duration (s)',
+        data: durations,
+        borderColor: 'rgba(54, 162, 235, 0.6)',
+        backgroundColor: 'rgba(54, 162, 235, 0.1)',
+        fill: true,
+        pointBackgroundColor: pointColors,
+        pointBorderColor: pointColors,
+        pointRadius: 6,
+        pointHoverRadius: 8,
+        tension: 0.2
       }]
     },
     options: {
-      responsive: true,
-      plugins: {
-        legend: { display: false }
-      },
       scales: {
         y: {
           beginAtZero: true,
-          max: 100,
           title: {
             display: true,
             text: 'Seconds'
           }
+        }
+      },
+      plugins: {
+        legend: {
+          display: true
         },
-        x: {
-          title: {
-            display: true,
-            text: 'Rounds'
+        tooltip: {
+          callbacks: {
+            label: function(context) {
+              const isCorrect = gameData[context.dataIndex].correct;
+              return `${context.dataset.label}: ${context.parsed.y}s (${isCorrect ? "Correct" : "Wrong"})`;
+            }
           }
         }
       }
     }
   });
+})();

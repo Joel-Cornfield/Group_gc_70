@@ -13,6 +13,7 @@ import os
 from app.socket_events import send_notification_to_user
 from datetime import datetime
 from app.models import Notification
+from sqlalchemy import and_
 
 
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'} 
@@ -112,12 +113,6 @@ def unblur(game_id):
     game.total_score = max(0, game.total_score-20)  # Deduct score for unblur usage
     db.session.commit()
     return jsonify({'score': game.total_score})
-    
-
-# How to Play Page
-@app.route('/howtoplay')
-def how_to_play():
-    return render_template('howtoplay.html', user=current_user)
 
 # Profile Page (Example)
 @app.route('/profile/<int:user_id>')
@@ -187,6 +182,10 @@ def profile_picture(user_id):
 def analytic_page(user_id):
     user = User.query.get_or_404(user_id)
     stats = Stats.query.filter_by(user_id=user_id).first()
+    if not stats:
+            stats = Stats(user_id=user_id, total_games=0, total_wins=0, win_streak=0, time_spent=0, start_date=db.func.now())
+            db.session.add(stats)
+    db.session.commit()
 
     # Check if the current user is the owner or a friend
     is_friend = Friend.query.filter(
@@ -198,7 +197,71 @@ def analytic_page(user_id):
         flash("You are not authorized to view this analytics page.", "danger")
         return redirect(url_for('home'))
 
-    return render_template('analyticpage.html', user=user, stats=stats)
+    # Leaderboards
+    win_streak_leaderboard = Stats.query.join(User).with_entities(
+        User.username.label("player"),
+        Stats.win_streak.label("value")
+    ).order_by(Stats.win_streak.desc()).limit(10).all()
+
+    total_wins_leaderboard = Stats.query.join(User).with_entities(
+        User.username.label("player"),
+        Stats.total_wins.label("value")
+    ).order_by(Stats.total_wins.desc()).limit(10).all()
+
+    win_percentage_leaderboard = Stats.query.join(User).with_entities(
+        User.username.label("player"),
+        Stats.win_percentage.label("value")
+    ).order_by(Stats.win_percentage.desc()).limit(10).all()
+
+    # Helper to get user's rank in a leaderboard
+    def get_rank(leaderboard, username):
+        for index, entry in enumerate(leaderboard):
+            if entry.player == username:
+                return f"#{index + 1}"
+        return "N/A"
+
+    stats_data = {
+        "total_games": stats.total_games,
+        "time_spent": f"{stats.time_spent // 60} mins" if stats.time_spent else "0 mins",
+        "win_streak": stats.win_streak,
+        "win_streak_rank": get_rank(win_streak_leaderboard, user.username),
+        "total_wins": stats.total_wins,
+        "total_wins_rank": get_rank(total_wins_leaderboard, user.username),
+        "win_percentage": f"{stats.win_percentage:.2f}%" if stats.win_percentage is not None else "N/A",
+        "win_percentage_rank": get_rank(win_percentage_leaderboard, user.username),
+        "start_date": stats.start_date.strftime('%B %d, %Y') if stats.start_date else "Unknown"
+    }
+
+    # Fetch finished games
+    games = Game.query.filter(
+        and_(
+            Game.user_id == user_id,
+            Game.start_time.isnot(None),
+            Game.finish_time.isnot(None)
+        )
+    ).order_by(Game.start_time.asc()).all()
+
+    # Prepare data for graph 
+    game_data = []
+    for game in games:
+        duration = (game.finish_time - game.start_time).total_seconds()
+        is_correct = game.total_score > 0 
+        game_data.append({
+            'game_id': game.id,
+            'duration': round(duration, 2),
+            'correct': is_correct 
+        })
+
+    return render_template(
+        'analyticpage.html',
+        user=user,
+        win_streak_leaderboard=win_streak_leaderboard,
+        total_wins_leaderboard=total_wins_leaderboard,
+        win_percentage_leaderboard=win_percentage_leaderboard,
+        stats=stats_data,
+        game_data=game_data
+    )
+
 
 # API Endpoint: Get User Data (Example)
 @app.route('/api/user/<int:user_id>', methods=['GET'])
@@ -224,6 +287,22 @@ def submit_game():
     )
     db.session.add(game)
     db.session.commit()
+
+    user_stats = Stats.query.filter_by(user_id=data['user_id']).first()
+    if user_stats:
+        user_stats.total_games += 1
+        if data['correct_guesses'] == len(data['locations_guessed']):
+            user_stats.total_wins += 1
+            user_stats.win_streak += 1
+        else:
+            user_stats.win_streak = 0  # Reset win streak on loss
+
+        # Calculate win percentage
+        user_stats.win_percentage = round((user_stats.total_wins / user_stats.total_games) * 100, 2)
+
+
+        db.session.commit()
+
     return jsonify({'message': 'Game data submitted successfully!'})
 
 # Auth Page 
@@ -247,6 +326,7 @@ def login():
             return redirect(url_for('home')) 
     return render_template('auth.html', user=current_user, login_form=login_form, signup_form=signup_form, tab='login')
 
+# Registration Form Submission 
 # Registration Form Submission 
 @app.route('/auth/signup', methods=['GET', 'POST'])
 def signup():
@@ -276,11 +356,28 @@ def signup():
         )
         user.set_password(signup_form.password.data)
         try:
+            # Add user to the database
             db.session.add(user)
-            db.session.commit()
+            db.session.commit()  # Commit user to generate user.id
+
+            # Create a stats entry for this user
+            stats = Stats(
+                user_id=user.id,
+                total_games=0,
+                total_wins=0,
+                win_streak=0,
+                time_spent=0,
+                win_percentage=0.0,
+                start_date=datetime.utcnow()
+            )
+            db.session.add(stats)
+            db.session.commit()  # Commit stats to the database
+
+            flash("Account created successfully!", "success")
             return redirect(url_for('login'))
         except Exception as e:
             db.session.rollback()
+            print(f"Error: {e}")
             flash('An error occurred while creating your account. Please try again.', 'danger')
             return render_template(
                 'auth.html',
@@ -296,6 +393,9 @@ def signup():
         login_form=LoginForm(),
         tab='signup'  # Stay on the signup tab
     )
+
+
+
 
 # Logout 
 @app.route('/auth/logout')

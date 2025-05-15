@@ -13,6 +13,7 @@ import os
 from app.socket_events import send_notification_to_user
 from datetime import datetime
 from app.models import Notification
+from sqlalchemy import and_
 
 
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'} 

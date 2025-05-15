@@ -2,7 +2,7 @@ import random
 import json 
 from flask import render_template, redirect, url_for, flash, request, jsonify , current_app
 from flask_login import login_user, logout_user, login_required, current_user
-from app.forms import LoginForm, RegistrationForm, ProfilePictureForm, ChangePasswordForm
+from app.forms import LoginForm, RegistrationForm, ProfilePictureForm, ChangePasswordForm, UpdateProfileForm
 from app.models import User, Game, Stats, Location, Hint, Friend, Notification
 from app import db
 from app.game_logic import process_guess
@@ -124,7 +124,21 @@ def profile(user_id):
 
     profile_picture_form = ProfilePictureForm() 
     change_password_form = ChangePasswordForm() 
-    return render_template('profile.html', user=current_user, stats=stats, profile_picture_form=profile_picture_form, change_password_form=change_password_form)
+    update_profile_form = UpdateProfileForm()
+    return render_template('profile.html', user=current_user, stats=stats, profile_picture_form=profile_picture_form, change_password_form=change_password_form, update_profile_form=update_profile_form)
+
+# Update Profile Route
+@app.route('/update_profile', methods=['POST'])
+@login_required
+def update_profile():
+    form = UpdateProfileForm()
+    if form.validate_on_submit():
+        current_user.username = form.username.data
+        current_user.first_name = form.first_name.data
+        current_user.last_name = form.last_name.data
+        db.session.commit()
+        flash("Profile updated successfully", "success")
+    return redirect(url_for('profile', user_id=current_user.id))
 
 # Change Password Route
 @main.route('/change_password', methods=['POST'])

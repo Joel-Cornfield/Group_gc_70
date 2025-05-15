@@ -1,9 +1,10 @@
 from datetime import datetime, timedelta
-from app import app, db
+from app import create_app, db
 from app.models import User, Friend, Notification, Game, Stats, Location, Hint, LocationGuess
 import json
 import random
 
+app = create_app()
 with app.app_context():
     db.drop_all()
     db.create_all()

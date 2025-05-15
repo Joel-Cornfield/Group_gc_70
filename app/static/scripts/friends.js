@@ -106,7 +106,7 @@ document.addEventListener('DOMContentLoaded', function () {
             title: getNotificationTitle(data.type),
             message: getNotificationMessage(data),
             icon: getNotificationIcon(data.type),
-            time: data.created_at ? new Date(data.created_at) : new Date(),
+            time: data.created_at ? new Date(data.created_at + 'Z') : new Date(),
             read: data.is_read || false
         };
         

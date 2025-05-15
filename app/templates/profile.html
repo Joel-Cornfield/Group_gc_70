@@ -134,7 +134,7 @@
             </div>
             <!-- Collapsible Edit Form -->
             <div class="collapse mt-3" id="editProfileForm">
-                <form method="POST" action="{{ url_for('update_profile') }}">
+                <form method="POST" action="{{ url_for('main.update_profile') }}">
                   {{ update_profile_form.hidden_tag() }}
                   <div class="row">
                     <div class="col-md-4 mb-3">

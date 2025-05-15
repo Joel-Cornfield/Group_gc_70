@@ -1,3 +1,4 @@
+import datetime
 import random
 import json 
 from flask import render_template, redirect, url_for, flash, request, jsonify , current_app
@@ -128,7 +129,7 @@ def profile(user_id):
     return render_template('profile.html', user=current_user, stats=stats, profile_picture_form=profile_picture_form, change_password_form=change_password_form, update_profile_form=update_profile_form)
 
 # Update Profile Route
-@app.route('/update_profile', methods=['POST'])
+@main.route('/update_profile', methods=['POST'])
 @login_required
 def update_profile():
     form = UpdateProfileForm()
@@ -138,7 +139,7 @@ def update_profile():
         current_user.last_name = form.last_name.data
         db.session.commit()
         flash("Profile updated successfully", "success")
-    return redirect(url_for('profile', user_id=current_user.id))
+    return redirect(url_for('main.profile', user_id=current_user.id))
 
 # Change Password Route
 @main.route('/change_password', methods=['POST'])
@@ -165,11 +166,11 @@ def upload_profile_picture():
 
     if not file or file.filename == '':
         flash('No file selected', 'danger')
-        return redirect(url_for('profile', user_id=current_user.id))
+        return redirect(url_for('main.profile', user_id=current_user.id))
 
     if not allowed_file(file.filename):
         flash('Invalid file type. Please upload an image file.', 'danger')
-        return redirect(url_for('profile', user_id=current_user.id))
+        return redirect(url_for('main.profile', user_id=current_user.id))
 
     # Save the file's binary data and mimetype to the database
     current_user.profile_picture_data = file.read()
@@ -177,7 +178,7 @@ def upload_profile_picture():
     db.session.commit()
 
     flash('Profile picture updated!', 'success')
-    return redirect(url_for('profile', user_id=current_user.id))
+    return redirect(url_for('main.profile', user_id=current_user.id))
 
 @main.route('/profile_picture/<int:user_id>')
 def profile_picture(user_id):
@@ -385,8 +386,6 @@ def signup():
             db.session.commit()  # Commit stats to the database
 
             flash("Account created successfully!", "success")
-            return redirect(url_for('login'))
-            db.session.commit()
             return redirect(url_for('main.login'))
         except Exception as e:
             db.session.rollback()

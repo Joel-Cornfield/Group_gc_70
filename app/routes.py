@@ -9,6 +9,7 @@ from app.game_logic import process_guess
 from app.socket_events import send_notification_to_user
 from datetime import datetime
 from app.models import Notification
+from sqlalchemy import and_
 
 """
 This file contains the route definitions for the Flask application. Almost all of these endpoints are skeletolns and are not fully implemented yet.
@@ -168,13 +169,34 @@ def analytic_page(user_id):
         "start_date": stats.start_date.strftime('%B %d, %Y') if stats.start_date else "Unknown"
     }
 
+    # Fetch finished games
+    games = Game.query.filter(
+        and_(
+            Game.user_id == user_id,
+            Game.start_time.isnot(None),
+            Game.finish_time.isnot(None)
+        )
+    ).order_by(Game.start_time.asc()).all()
+
+    # Prepare data for graph 
+    game_data = []
+    for game in games:
+        duration = (game.finish_time - game.start_time).total_seconds()
+        is_correct = game.total_score > 0 
+        game_data.append({
+            'game_id': game.id,
+            'duration': round(duration, 2),
+            'correct': is_correct 
+        })
+
     return render_template(
         'analyticpage.html',
         user=user,
         win_streak_leaderboard=win_streak_leaderboard,
         total_wins_leaderboard=total_wins_leaderboard,
         win_percentage_leaderboard=win_percentage_leaderboard,
-        stats=stats_data
+        stats=stats_data,
+        game_data=game_data
     )
 
 

@@ -132,10 +132,15 @@
         </div>
     </div>
 
-    <div class="chart-container">
+    <div class="chart-container mx-5 my-5">
         <h2>Guess Time Per Round</h2>
-        <canvas id="guessTimeChart" height="120"></canvas>
+        <canvas id="guessTimeChart" width="800" height="400"></canvas>
     </div>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+      const gameData = {{ game_data | tojson | safe }};
+    </script>
+    <script src="{{ url_for('static', filename='scripts/analyticgraph.js') }}"></script>
 </body>
 
 </html>

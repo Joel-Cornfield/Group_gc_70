@@ -134,9 +134,12 @@ def profile(user_id):
 def update_profile():
     form = UpdateProfileForm()
     if form.validate_on_submit():
-        current_user.username = form.username.data
-        current_user.first_name = form.first_name.data
-        current_user.last_name = form.last_name.data
+        if form.username.data:
+            current_user.username = form.username.data
+        if form.first_name.data:
+            current_user.first_name = form.first_name.data
+        if form.last_name.data:
+            current_user.last_name = form.last_name.data
         db.session.commit()
         flash("Profile updated successfully", "success")
     return redirect(url_for('main.profile', user_id=current_user.id))

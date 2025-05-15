@@ -2,6 +2,7 @@ from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, SubmitField
 from wtforms.validators import DataRequired, Email, EqualTo, ValidationError
 from app.models import User
+from flask_wtf.file import FileField, FileAllowed
 
 ### Login Form ###
 class LoginForm(FlaskForm):
@@ -24,9 +25,7 @@ class RegistrationForm(FlaskForm):
     password = PasswordField('Password', validators=[DataRequired()])
     confirm_password = PasswordField('Confirm Password', validators=[DataRequired(), EqualTo('password')])
     submit = SubmitField('Sign Up')
-
-    submit = SubmitField('Sign Up')
-
+    
     # Custom validator for username
     def validate_username(self, username):
         user = User.query.filter_by(username=username.data).first()
@@ -39,8 +38,24 @@ class RegistrationForm(FlaskForm):
         if user:
             raise ValidationError('Email already exists. Please choose a different one.')
 
+
+### Profile Picture Upload Form ###
+class ProfilePictureForm(FlaskForm):
+    profile_picture = FileField('Upload Profile Picture', validators=[
+        FileAllowed(['jpg', 'jpeg', 'png', 'gif'], 'Only image files allowed!')
+    ])
+    submit = SubmitField('Upload')
+
+### Change Password Form ###
+class ChangePasswordForm(FlaskForm):
+    current_password = PasswordField('Current Password', validators=[DataRequired()])
+    new_password = PasswordField('New Password', validators=[DataRequired()])
+    confirm_password = PasswordField('Confirm New Password', validators=[
+        DataRequired(), EqualTo('new_password', message='Passwords must match')
+    ])
+    submit = SubmitField('Change Password')
+
+
 ### Location Form ###
 #class LocationForm(FlaskForm):
 
-### Change Password Form ###
-#class ChangePasswordForm(FlaskForm):

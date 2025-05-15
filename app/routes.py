@@ -118,6 +118,10 @@ def profile(user_id):
 def analytic_page(user_id):
     user = User.query.get_or_404(user_id)
     stats = Stats.query.filter_by(user_id=user_id).first()
+    if not stats:
+            stats = Stats(user_id=user_id, total_games=0, total_wins=0, win_streak=0, time_spent=0, start_date=db.func.now())
+            db.session.add(stats)
+    db.session.commit()
 
     # Check if the current user is the owner or a friend
     is_friend = Friend.query.filter(
@@ -211,8 +215,6 @@ def submit_game():
         # Calculate win percentage
         user_stats.win_percentage = (user_stats.total_wins / user_stats.total_games) * 100
 
-        # Add time spent in this game (could be an estimate based on your game logic)
-        user_stats.time_spent += data.get('time_spent', 0)
 
         db.session.commit()
 

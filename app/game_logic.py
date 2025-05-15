@@ -91,5 +91,6 @@ def submit_game(game, user_id, success):
             stats.win_streak = 0
 
         stats.win_percentage = (stats.total_wins / stats.total_games) * 100
+        stats.time_spent += (game.finish_time - game.start_time).total_seconds()
         db.session.commit()
 

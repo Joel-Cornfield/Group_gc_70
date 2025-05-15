@@ -120,16 +120,17 @@
       </div>
 
       <!-- Bootstrap Alert (Hidden by Default) -->
-      <div id="howToPlayAlert" class="alert alert-info alert-dismissible fade show mt-3 mx-auto text-start" style="display: none; max-width: 600px;" role="alert">
+      <div id="howToPlayAlert" class="alert alert-info alert-dismissible mt-3 mx-auto text-start" style="display: none; max-width: 600px;" role="alert">
         <strong>How to play:</strong><br>
         1. Click on the map to guess a location.<br>
         2. Receive feedback on your guess:<br>
         - 🟦Cold: Very far from the correct location.<br>
         - 🟨 Warm: Somewhat close to the correct location.<br>
         - 🟥 Hot: Very close to the correct location.<br>
-        3. Keep guessing until you find the exact location!<br><br>
+        3. Keep guessing until you find the exact location!<br>
+        4. Sign up to see your own personal statistics!<br><br>
         Good luck and have fun!
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        <button type="button" class="btn-close" aria-label="Close" onclick="hideInstructions()"></button>
       </div>
     </div>
   </div>
@@ -142,8 +143,15 @@
   <script>
     function showInstructions() {
       const alertBox = document.getElementById('howToPlayAlert');
-      alertBox.style.display = 'block'; 
+      alertBox.style.display = 'block';
     }
+
+    function hideInstructions() {
+      const alertBox = document.getElementById('howToPlayAlert');
+      alertBox.style.display = 'none';
+    }
+</script>
+
   </script>
 
 </body>

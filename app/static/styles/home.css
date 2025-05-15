@@ -10,7 +10,7 @@ body {
 	margin: 0;
 	font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 	background-color: #001e4f;
-	overflow: hidden;
+	overflow-x: hidden;
 	color: white;
 }
 
@@ -79,4 +79,21 @@ body {
 /* Optional: Pause scrolling on hover */
 .scrolling-map-container:hover .scrolling-map {
 	animation-play-state: paused;
+}
+
+@media (max-width: 768px) {
+	.main-wrapper {
+		flex-direction: column;
+		overflow-y: auto;
+	}
+
+	.scrolling-map-container {
+		width: 100%;
+		height: 50vh; /* Adjust based on preference */
+	}
+
+	.text-container {
+		padding: 1rem;
+		text-align: center;
+	}
 }

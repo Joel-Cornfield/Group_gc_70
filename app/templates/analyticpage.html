@@ -88,24 +88,24 @@
         </div>
     </nav>
 
-    <h1>🏆 Leaderboards</h1>
+    <h1>Leaderboards</h1>
     <div class="leaderboard-container">
         <div class="leaderboard">
-            <h2>🔥 Win Streak</h2>
+            <h2>Win Streak</h2>
             {% for entry in win_streak_leaderboard %}
             <div class="entry"><span class="player">{{ entry.player }}</span><span class="value">{{ entry.value }}</span></div>
             {% endfor %}
         </div>
 
         <div class="leaderboard">
-            <h2>🏅 Total Wins</h2>
+            <h2>Total Wins</h2>
             {% for entry in total_wins_leaderboard %}
             <div class="entry"><span class="player">{{ entry.player }}</span><span class="value">{{ entry.value }}</span></div>
             {% endfor %}
         </div>
 
         <div class="leaderboard">
-            <h2>📈 Win Percentage</h2>
+            <h2>Win Percentage</h2>
             {% for entry in win_percentage_leaderboard %}
             <div class="entry"><span class="player">{{ entry.player }}</span><span class="value">{{ entry.value }}</span></div>
             {% endfor %}
@@ -114,38 +114,43 @@
 
     <div class="stat-row">
         <div class="stat-card">
-            <div class="stat-label">🎮 Total Plays</div>
-            <div class="stat-value">{{ stats.total_plays }}</div>
+            <div class="stat-label">Total Plays</div>
+            <div class="stat-value">{{ stats.total_games }}</div>
         </div>
         <div class="stat-card">
-            <div class="stat-label">⏱️ Time Spent</div>
+            <div class="stat-label">Time Spent</div>
             <div class="stat-value">{{ stats.time_spent }}</div>
         </div>
         <div class="stat-card">
-            <div class="stat-label">🔥 Win Streak</div>
+            <div class="stat-label">Win Streak</div>
             <div class="stat-value">{{ stats.win_streak }}</div>
             <div class="stat-rank">{{ stats.win_streak_rank }}</div>
         </div>
         <div class="stat-card">
-            <div class="stat-label">🏅 Total Wins</div>
+            <div class="stat-label">Total Wins</div>
             <div class="stat-value">{{ stats.total_wins }}</div>
             <div class="stat-rank">{{ stats.total_wins_rank }}</div>
         </div>
         <div class="stat-card">
-            <div class="stat-label">📈 Win Percentage</div>
+            <div class="stat-label">Win Percentage</div>
             <div class="stat-value">{{ stats.win_percentage }}</div>
             <div class="stat-rank">{{ stats.win_percentage_rank }}</div>
         </div>
         <div class="stat-card">
-            <div class="stat-label">🗕️ Started When</div>
+            <div class="stat-label">Started When</div>
             <div class="stat-value">{{ stats.start_date }}</div>
         </div>
     </div>
 
-    <div class="chart-container">
-        <h2>📊 Guess Time Per Round</h2>
-        <canvas id="guessTimeChart" height="120"></canvas>
+    <div class="chart-container d-flex flex-column align-items-center my-5">
+        <h2>Guess Time Per Round</h2>
+        <canvas id="guessTimeChart" width="800" height="400"></canvas>
     </div>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+      const gameData = {{ game_data | tojson | safe }};
+    </script>
+    <script src="{{ url_for('static', filename='scripts/analyticgraph.js') }}"></script>
 </body>
 
 </html>

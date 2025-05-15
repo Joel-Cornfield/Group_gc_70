@@ -16,6 +16,15 @@
   <link href="{{ url_for('static', filename='styles/navbar.css') }}" rel="stylesheet">
 </head>
 
+<!-- Custom CSS for Alert Box -->
+<style>
+  /* Custom background color for the alert box */
+  #howToPlayAlert {
+    background-color: #DAAA00;
+    color: #003087;
+  }
+</style>
+
 <body>
 
   <!-- Navbar -->
@@ -105,9 +114,22 @@
         <a href="{{ url_for('main.game') }}" class="btn btn-uwa btn-lg mx-2 mb-2">
           <i class="fas fa-play me-1"></i> Start Game
         </a>
-        <a href="howtoplay.html" class="btn btn-uwa btn-lg mx-2 mb-2">
+        <button onclick="showInstructions()" class="btn btn-uwa btn-lg mx-2 mb-2">
           <i class="fas fa-info-circle me-1"></i> How to Play
-        </a>
+        </button>
+      </div>
+
+      <!-- Bootstrap Alert (Hidden by Default) -->
+      <div id="howToPlayAlert" class="alert alert-info alert-dismissible fade show mt-3 mx-auto text-start" style="display: none; max-width: 600px;" role="alert">
+        <strong>How to play:</strong><br>
+        1. Click on the map to guess a location.<br>
+        2. Receive feedback on your guess:<br>
+        - 🟦Cold: Very far from the correct location.<br>
+        - 🟨 Warm: Somewhat close to the correct location.<br>
+        - 🟥 Hot: Very close to the correct location.<br>
+        3. Keep guessing until you find the exact location!<br><br>
+        Good luck and have fun!
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
       </div>
     </div>
   </div>
@@ -115,6 +137,15 @@
   <script src="{{ url_for('static', filename='scripts/friends.js') }}"></script>
   <!-- Bootstrap JS -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js"></script>
+
+  <!-- Show Bootstrap Alert -->
+  <script>
+    function showInstructions() {
+      const alertBox = document.getElementById('howToPlayAlert');
+      alertBox.style.display = 'block'; 
+    }
+  </script>
+
 </body>
 
 </html>

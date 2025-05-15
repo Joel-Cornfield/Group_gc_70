@@ -327,7 +327,7 @@ def get_friends():
             friends_dict[friend_id] = {
                 'id': friend_user.id,
                 'name': friend_user.username,
-                'profile_picture': url_for('profile_picture', user_id=friend_user.id)
+                'profile_picture': url_for('main.profile_picture', user_id=friend_user.id)
             }
 
     # Convert the dictionary values to a list
@@ -411,7 +411,7 @@ def get_friend_requests():
             'id': request.id,
             'user_id': request.user_id,
             'name': User.query.get(request.user_id).username,
-            'profile_picture':  url_for('profile_picture', user_id=request.user_id)
+            'profile_picture':  url_for('main.profile_picture', user_id=request.user_id)
         }
         for request in requests
     ]
@@ -538,7 +538,7 @@ def get_notifications():
                 sender_info = {
                     'id': sender.id,
                     'username': sender.username,
-                    'profile_picture':  url_for('profile_picture', user_id=sender.id)
+                    'profile_picture':  url_for('main.profile_picture', user_id=sender.id)
                 }
         
         # Format the notification

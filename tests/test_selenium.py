@@ -4,10 +4,14 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.firefox.options import Options as FirefoxOptions
+from selenium.webdriver.common.action_chains import ActionChains
 from app import create_app, db
 from app.models import User
 from config import TestConfig
 from threading import Thread
+
+BROWSER = "chrome"  # "chrome" or "firefox" or "edge"
 
 class SeleniumTestCase(unittest.TestCase):
     def setUp(self):
@@ -22,7 +26,7 @@ class SeleniumTestCase(unittest.TestCase):
         db.create_all()
         print("Database created")
         test_user = User(username="testuser", email="testuser@example.com", first_name="Test", last_name="User")
-        test_user.set_password("password123")
+        test_user.set_password("VerySafePassword123")
         db.session.add(test_user)
         db.session.commit()
         user = User.query.filter_by(username="testuser").first()
@@ -37,15 +41,25 @@ class SeleniumTestCase(unittest.TestCase):
         self.server_thread.daemon = True
         self.server_thread.start()
 
-        # Initialize the Selenium WebDriver in headless mode
-        options = webdriver.ChromeOptions()
-        options.add_argument("--headless")  # Run in headless mode (optional)
-        options.add_argument("--disable-gpu")  # Disable GPU acceleration
-        options.add_argument("--window-size=1920,1080")  # Set a default window size
-        options.add_argument("--disable-password-manager-reauthentication")  # Disable password manager alerts
-        options.add_argument("--disable-features=PasswordCheck")  # Disable password safety check
-        options.add_argument("--no-sandbox")  # Required for some environments
-        self.driver = webdriver.Chrome(options=options)
+        if BROWSER == "firefox":
+            options = FirefoxOptions()
+            options.add_argument("--headless")
+            options.add_argument("--window-size=1920,1080")  # Set a default window size
+            self.driver = webdriver.Firefox(options=options)
+        elif BROWSER == "edge":
+            options = webdriver.EdgeOptions()
+            options.add_argument("--headless")
+            options.add_argument("--window-size=1920,1080")  # Set a default window size
+            self.driver = webdriver.Edge(options=options)
+        else:
+            options = webdriver.ChromeOptions()
+            options.add_argument("--headless")
+            options.add_argument("--disable-gpu")  # Disable GPU acceleration
+            options.add_argument("--window-size=1920,1080")  # Set a default window size
+            options.add_argument("--disable-password-manager-reauthentication")  # Disable password manager alerts (VerySafePassword123 is not very safe)
+            options.add_argument("--disable-features=PasswordCheck")  # Disable password safety check
+            options.add_argument("--no-sandbox")  # Required for some environments
+            self.driver = webdriver.Chrome(options=options)
         self.driver.get("http://127.0.0.1:5000/")  # Base URL of the app
 
     def tearDown(self):
@@ -79,7 +93,7 @@ class SeleniumTestCase(unittest.TestCase):
             username_field = driver.find_element(By.NAME, "username")
             password_field = driver.find_element(By.NAME, "password")
             username_field.send_keys("testuser")
-            password_field.send_keys("password123")
+            password_field.send_keys("VerySafePassword123")
 
             # Submit the form
             password_field.send_keys(Keys.RETURN)
@@ -154,8 +168,8 @@ class SeleniumTestCase(unittest.TestCase):
             last_name_field.send_keys("User")
             username_field.send_keys("newuser")
             email_field.send_keys("newuser@example.com")
-            password_field.send_keys("password123")
-            confirm_password_field.send_keys("password123")
+            password_field.send_keys("VerySafePassword123")
+            confirm_password_field.send_keys("VerySafePassword123")
 
             # Submit the form
             confirm_password_field.send_keys(Keys.RETURN)
@@ -193,9 +207,9 @@ class SeleniumTestCase(unittest.TestCase):
             current_password_field = driver.find_element(By.ID, "current_password")
             new_password_field = driver.find_element(By.ID, "new_password")
             confirm_password_field = driver.find_element(By.ID, "confirm_password")
-            current_password_field.send_keys("password123")
-            new_password_field.send_keys("newpassword123")
-            confirm_password_field.send_keys("newpassword123")
+            current_password_field.send_keys("VerySafePassword123")
+            new_password_field.send_keys("NewVerySafePassword123")
+            confirm_password_field.send_keys("NewVerySafePassword123")
 
             # Submit the form
             confirm_password_field.send_keys(Keys.RETURN)
@@ -205,6 +219,116 @@ class SeleniumTestCase(unittest.TestCase):
                 EC.presence_of_element_located((By.CLASS_NAME, "alert-success"))
             )
             self.assertIn("Password updated successfully", driver.page_source)
+
+    def test_add_friend(self):
+        """Test sending a friend request."""
+        with self.app.app_context():
+            driver = self.driver
+            self.test_login()  # Log in as testuser
+
+            # Go to profile page
+            dropdown_toggle = driver.find_element(By.CSS_SELECTOR, ".dropdown-toggle")
+            dropdown_toggle.click()
+            profile_link = driver.find_element(By.LINK_TEXT, "Your Profile")
+            profile_link.click()
+
+            # Wait for the add friend input
+            WebDriverWait(driver, 10).until(
+                EC.presence_of_element_located((By.ID, "friend-username"))
+            )
+
+            # Add a new user to send a friend request to
+            new_friend = User(username="frienduser", email="friend@example.com", first_name="Friend", last_name="User")
+            new_friend.set_password("VerySafePassword123")
+            db.session.add(new_friend)
+            db.session.commit()
+
+            # Enter friend's username and click add
+            friend_username_input = driver.find_element(By.ID, "friend-username")
+            add_friend_button = driver.find_element(By.ID, "add-friend-button")
+            friend_username_input.send_keys("frienduser")
+            add_friend_button.click()
+
+            # Wait for notification (toast or alert)
+            WebDriverWait(driver, 10).until(
+                EC.text_to_be_present_in_element((By.CLASS_NAME, "toast-body"), "Friend request sent")
+            )
+            self.assertIn("Friend request sent", driver.page_source)
+
+    def test_accept_friend_request(self):
+        """Test accepting a friend request."""
+        with self.app.app_context():
+            # Create two users and a pending friend request
+            user1 = User.query.filter_by(username="testuser").first()
+            user2 = User(username="pendingfriend", email="pending@example.com", first_name="Pending", last_name="Friend")
+            user2.set_password("VerySafePassword123")
+            db.session.add(user2)
+            db.session.commit()
+
+            from app.models import Friend
+            from flask_login import login_user
+            friend_request = Friend(user_id=user2.id, friend_id=user1.id, status="pending")
+            db.session.add(friend_request)
+            db.session.commit()
+
+            driver = self.driver
+            self.test_login()  # Log in as testuser
+
+            # Go to profile page
+            dropdown_toggle = driver.find_element(By.CSS_SELECTOR, ".dropdown-toggle")
+            dropdown_toggle.click()
+            profile_link = driver.find_element(By.LINK_TEXT, "Your Profile")
+            profile_link.click()
+
+            # Wait for the pending friend requests list
+            WebDriverWait(driver, 100).until(
+                EC.presence_of_element_located((By.ID, "friend-requests-list"))
+            )
+
+            # Accept the friend request
+            accept_button = driver.find_element(By.CSS_SELECTOR, ".accept-request-button")
+            accept_button.click()
+
+            # Wait for notification (toast or alert)
+            WebDriverWait(driver, 100).until(
+                EC.text_to_be_present_in_element((By.CLASS_NAME, "toast-body"), "You are now friends")
+            )
+            self.assertIn("You are now friends", driver.page_source)
+
+    def test_submit_guess(self):
+        """Test submitting a guess in the game."""
+        with self.app.app_context():
+            driver = self.driver
+            self.test_login()  # Log in as testuser
+
+            # Go to game page
+            driver.get("http://127.0.0.1:5000/game")
+
+            # Wait for the map content to be present
+            map_content = WebDriverWait(driver, 100).until(
+                EC.element_to_be_clickable((By.ID, "guess-map-content"))
+            )
+
+            # Click in the middle of the guess-map-content
+
+            # Get the size of the element
+            size = map_content.size
+            width = size['width']
+            height = size['height']
+
+            # Move to the center and click
+            actions = ActionChains(driver)
+            actions.move_to_element_with_offset(map_content, width // 4, height // 6).click().perform()
+
+            # Click the submit guess button
+            submit_button = driver.find_element(By.ID, "submitGuess")
+            submit_button.click()
+
+            # Wait for feedback or score update
+            WebDriverWait(driver, 10).until(
+                EC.presence_of_element_located((By.ID, "guess-feedback"))
+            )
+            self.assertIn("Guess placed", driver.page_source)
 
 if __name__ == "__main__":
     unittest.main()

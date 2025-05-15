@@ -1,7 +1,7 @@
 import datetime
 import random
 import json 
-from flask import render_template, redirect, url_for, flash, request, jsonify , current_app
+from flask import render_template, redirect, url_for, flash, request, jsonify , current_app, Response
 from flask_login import login_user, logout_user, login_required, current_user
 from app.forms import LoginForm, RegistrationForm, ProfilePictureForm, ChangePasswordForm, UpdateProfileForm
 from app.models import User, Game, Stats, Location, Hint, Friend, Notification
@@ -189,7 +189,7 @@ def profile_picture(user_id):
     if not user.profile_picture_data:
         # Return a default profile picture if none is set
         return redirect(url_for('static', filename='images/defaultprofile.png'))
-    return main.response_class(user.profile_picture_data, mimetype=user.profile_picture_mimetype)
+    return Response(user.profile_picture_data, mimetype=user.profile_picture_mimetype)
 
 
 # Leaderboard/Statistics Page (Example, would need more info)

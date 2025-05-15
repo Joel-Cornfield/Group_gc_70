@@ -113,12 +113,6 @@ def unblur(game_id):
     game.total_score = max(0, game.total_score-20)  # Deduct score for unblur usage
     db.session.commit()
     return jsonify({'score': game.total_score})
-    
-
-# How to Play Page
-@app.route('/howtoplay')
-def how_to_play():
-    return render_template('howtoplay.html', user=current_user)
 
 # Profile Page (Example)
 @app.route('/profile/<int:user_id>')
@@ -304,7 +298,7 @@ def submit_game():
             user_stats.win_streak = 0  # Reset win streak on loss
 
         # Calculate win percentage
-        user_stats.win_percentage = (user_stats.total_wins / user_stats.total_games) * 100
+        user_stats.win_percentage = round((user_stats.total_wins / user_stats.total_games) * 100, 2)
 
 
         db.session.commit()

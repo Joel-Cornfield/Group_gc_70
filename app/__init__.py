@@ -1,10 +1,12 @@
+from dotenv import load_dotenv
+load_dotenv()
+
 from flask import Flask 
 from config import Config 
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_login import LoginManager
 from flask_socketio import SocketIO
-
 
 
 db = SQLAlchemy()
@@ -15,8 +17,6 @@ socketio = SocketIO(cors_allowed_origins="*")
 def create_app(config_class=Config):
     app = Flask(__name__)
     app.config.from_object(config_class)
-    app.config['SECRET_KEY'] = '4e2b6d9f8a7c4a937fc3882efhfjdb62b8df3sbdhfeb80d34dd0221bdc6b2a0efbb4'
-
     
     db.init_app(app)
 

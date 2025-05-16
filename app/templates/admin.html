@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin - Manage Locations</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+  <link href="{{ url_for('static', filename='styles/navbar.css') }}" rel="stylesheet">
+</head>
+
+<body>
+  <!-- Navbar -->
+  <nav class="navbar navbar-expand-lg navbar-dark bg-uwa px-4">
+    <a class="navbar-brand d-flex align-items-center" href="#">
+      <img src="{{ url_for('static', filename='images/uwa.webp') }}" alt="UWA Logo" class="logo me-2">
+      <span class="fw-bold text-uwa-gold">UWA GeoGuesser</span>
+    </a>
+    <div class="ms-auto d-flex align-items-center">
+      <a class="nav-link text-white mx-2" href="{{ url_for('main.home') }}">Home</a>
+      <a class="nav-link text-white mx-2" href="{{ url_for('main.game') }}">Game</a>
+      {% if user.is_authenticated and user.admin %}
+        <a class="nav-link text-white mx-2" href="{{ url_for('main.admin_page') }}">Admin</a>
+      {% endif %}
+      {% if user.is_authenticated %}
+        <div class="dropdown notification-dropdown mx-2">
+          <a class="nav-link text-white position-relative" href="#" role="button" data-bs-toggle="dropdown" id="notificationBell" aria-expanded="false">
+            <i class="bi bi-bell-fill fs-5"></i>
+              <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger notification-badge" style="display: none;">
+                <span class="notification-count">0</span>
+                <span class="visually-hidden">unread notifications</span>
+              </span>
+          </a>
+          <div class="dropdown-menu dropdown-menu-end notification-menu p-0" style="width: 320px; max-height: 400px; overflow-y: auto;">
+            <div class="notification-header bg-light p-2 d-flex justify-content-between align-items-center">
+              <h6 class="m-0">Notifications</h6>
+              <button class="btn btn-sm text-primary mark-all-read">Mark all as read</button>
+            </div>
+            <div class="dropdown-divider m-0"></div>
+            <div id="notification-list">
+              <!-- Notifications will be loaded here -->
+              <div class="text-center py-3 text-muted empty-notification">
+                <i class="bi bi-bell-slash fs-4 d-block mb-2"></i>
+                No new notifications
+              </div>
+            </div>
+            <div class="dropdown-divider m-0"></div>
+          </div>
+        </div>
+        {% endif %}
+        <div class="dropdown">
+          <a class="nav-link dropdown-toggle d-flex align-items-center mx-2" href="#" role="button" data-bs-toggle="dropdown">
+            {% if user.is_authenticated %}
+              <img src="{{ url_for('main.profile_picture', user_id=user.id) }}" alt="Profile Avatar" class="avatar-img">
+            {% else %}
+              <img src="{{ url_for('static', filename='images/defaultprofile.png') }}" alt="Default Avatar" class="avatar-img">
+            {% endif %}
+          </a>
+          <ul class="dropdown-menu dropdown-menu-end">
+            {% if user.is_authenticated %}
+              <li><a class="dropdown-item" href="{{ url_for('main.profile', user_id=user.id) }}">Your Profile</a></li>
+              <li><a class="dropdown-item" href="{{ url_for('main.analytic_page', user_id=user.id) }}">Statistics</a></li>
+              {% if user.is_authenticated and user.admin %}
+                <a class="dropdown-item" href="{{ url_for('main.admin_page') }}">Admin</a>
+              {% endif %}
+              <li>
+                <hr class="dropdown-divider">
+              </li>
+              <li><a class="dropdown-item text-danger" href="{{ url_for('main.logout') }}">Logout</a></li>
+            {% else %}
+              <li><a class="dropdown-item" href="{{ url_for('main.auth') }}">Login/Signup</a></li>
+            {% endif %}
+          </ul>
+    </div>
+  </nav>
+
+  <div class="container py-5">
+    <h1 class="text-center mb-4">Manage Locations</h1>
+    <form method="POST" enctype="multipart/form-data">
+      <!-- Dropdown to select an existing location -->
+      <div class="mb-3">
+        <label for="location_id" class="form-label">Select Location to Edit</label>
+        <select class="form-select" id="location_id" name="location_id" onchange="populateLocationData()">
+          <option value="">Create New Location</option>
+          {% for location in locations %}
+            <option value="{{ location.id }}">{{ location.name }}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <!-- Location Name -->
+      <div class="mb-3">
+        <label for="location_name" class="form-label">Location Name</label>
+        <input type="text" class="form-control" id="location_name" name="location_name" required>
+      </div>
+
+      <!-- Latitude -->
+      <div class="mb-3">
+        <label for="latitude" class="form-label">Latitude</label>
+        <input type="number" step="any" class="form-control" id="latitude" name="latitude" required>
+      </div>
+
+      <!-- Longitude -->
+      <div class="mb-3">
+        <label for="longitude" class="form-label">Longitude</label>
+        <input type="number" step="any" class="form-control" id="longitude" name="longitude" required>
+      </div>
+
+      <!-- Department -->
+      <div class="mb-3">
+        <label for="department" class="form-label">Department</label>
+        <input type="text" class="form-control" id="department" name="department">
+      </div>
+
+      <!-- Hints -->
+      <div class="mb-3">
+        <label for="hints" class="form-label">Hints (one per line)</label>
+        <textarea class="form-control" id="hints" name="hints" rows="3"></textarea>
+      </div>
+
+      <!-- Image -->
+      <div class="mb-3">
+        <label for="image" class="form-label">Location Image</label>
+        <input type="file" class="form-control" id="image" name="image" accept="image/*">
+      </div>
+
+      <button type="submit" class="btn btn-primary">Save Location</button>
+    </form>
+  </div>
+
+  <script>
+    // JavaScript to populate form fields when a location is selected
+    const form_locations = {{ locations|tojson }};
+    function populateLocationData() {
+      const locationId = document.getElementById('location_id').value;
+      const location = form_locations.find(loc => loc.id == locationId);
+
+      if (location) {
+        document.getElementById('location_name').value = location.name;
+        document.getElementById('latitude').value = location.latitude;
+        document.getElementById('longitude').value = location.longitude;
+        document.getElementById('department').value = location.department || '';
+        document.getElementById('hints').value = location.hints.map(hint => hint.text).join('\n');
+      } else {
+        // Clear the form for creating a new location
+        document.getElementById('location_name').value = '';
+        document.getElementById('latitude').value = '';
+        document.getElementById('longitude').value = '';
+        document.getElementById('department').value = '';
+        document.getElementById('hints').value = '';
+      }
+    }
+  </script>
+</body>
+
+</html>

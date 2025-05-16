@@ -16,10 +16,8 @@ Admins can manage location data and game content, while players can challenge th
 | 23863104   | Jashan Toor          | Jashan-Toor       |
 
 ## How to Launch the Application
-1. **Clone the repository:**
-   ```bash
-   git clone https://github.com/your-org/your-repo.git
-   cd your-repo
+1. Unzip the provided folder
+   Extract the ZIP file to a location of your choice.
 
 2. Create and activate a virtual environment:
    ```bash

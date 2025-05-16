@@ -23,24 +23,24 @@ Admins can manage location data and game content, while players can challenge th
    git clone https://github.com/your-org/your-repo.git
    cd your-repo
 
-Create and activate a virtual environment:
-```bash
-python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
-```
+2. Create and activate a virtual environment:
+   ```bash
+   python -m venv venv
+   source venv/bin/activate  # On Windows: venv\Scripts\activate
+   ```
 
-Install dependencies:
-```bash
-pip install -r requirements.txt
-```
+3. Install dependencies:
+   ```bash
+   pip install -r requirements.txt
+   ```
 
 Use the provided database:
 A small pre-populated app.db is included in the repository with a couple user accounts (including admin), locations, hints and images. 
 
-Run the application:
-```bash
-flask run
-```
+4. Run the application:
+   ```bash
+   flask run
+   ```
 
 By default, the app runs on http://127.0.0.1:5000/
 # How to Run the Tests

@@ -1,7 +1,9 @@
 # Group_gc_70
 
 ## Purpose and Design
-This web application is a UWA-themed GeoGuessr-style game designed to challenge users to identify locations around the UWA campus based on images and hints. Players log in to their accounts, guess the location, earn scores, and view their performance stats. The app includes user authentication, real-time gameplay, a leaderboard, and a profile system, along with support for managing friend lists and receiving notifications.
+This web application is a UWA-themed GeoGuessr-style game designed to challenge users to identify locations around the UWA campus based on images and hints. Players log in to their accounts, guess the location, earn scores, and view their performance stats. The app includes user authentication, real-time gameplay, a leaderboard, and a profile system, along with support for a friend system and receiving notifications. 
+
+Users can view the stats pages of their friends, enabling a form of controlled/private data sharing that enhances friendly competition.
 
 The game is designed for a smooth, engaging user experience on both desktop and mobile. Admins can manage location data and game content, while players can challenge themselves and track their progress.
 

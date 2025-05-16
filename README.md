@@ -32,6 +32,9 @@ Install dependencies:
 pip install -r requirements.txt
 ```
 
+Use the provided database:
+A small pre-populated app.db is included in the repository with a couple user accounts (including admin), locations, hints and images. 
+
 Run the application:
 ```bash
 flask run

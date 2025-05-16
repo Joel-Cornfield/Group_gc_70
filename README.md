@@ -24,8 +24,10 @@ Admins can manage location data and game content, while players can challenge th
    cd your-repo
 
 Create and activate a virtual environment:
-bashpython -m venv venv
+```bash
+python -m venv venv
 source venv/bin/activate  # On Windows: venv\Scripts\activate
+```
 
 Install dependencies:
 ```bash

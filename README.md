@@ -15,8 +15,6 @@ Admins can manage location data and game content, while players can challenge th
 | 24268033   | Rachel Hii           | RachelHiiYuZhen   |
 | 23863104   | Jashan Toor          | Jashan-Toor       |
 
-*(Replace the above with your actual group member details.)*
-
 ## How to Launch the Application
 1. **Clone the repository:**
    ```bash

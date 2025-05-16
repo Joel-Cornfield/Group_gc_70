@@ -8,12 +8,12 @@ Users can view the stats pages of their friends, enabling a form of controlled/p
 The game is designed for a smooth, engaging user experience on both desktop and mobile. Admins can manage location data and game content, while players can challenge themselves and track their progress.
 
 ## Group Members
-| UWA ID     | Name            | GitHub Username   |
-|------------|------------------|-------------------|
-| 12345678   | Alice Example     | alice123          |
-| 23456789   | Bob Example       | bobdev            |
-| 34567890   | Charlie Example   | charliehub        |
-| 45678901   | Dana Example      | danacodes         |
+| UWA ID     | Name                 | GitHub Username   |
+|------------|----------------------|-------------------|
+| 23749925   | Joel Cornfield       | Joel-Cornfield    |
+| 23715959   | Malachy McGrath      | kiki286           |
+| 24268033   | Rachel Hii           | RachelHiiYuZhen   |
+| 23863104   | Jashan Toor          | Jashan-Toor       |
 
 *(Replace the above with your actual group member details.)*
 

@@ -30,8 +30,15 @@ Admins can manage location data and game content, while players can challenge th
    pip install -r requirements.txt
    ```
 
-Use the provided database:
-A small pre-populated app.db is included in the repository with a couple user accounts (including admin), locations, hints and images. 
+4. Create a .env file in the project root directory
+   The SECRET_KEY is used by Flask to securely sign session cookies and protect against attacks such as cookie tampering or CSRF. It must be a long, random string that          remains secret.
+   Add the following line to .env:
+   ```bash
+   SECRET_KEY=your-secret-key-here
+   ```
+
+6. Use the provided database:
+   A small pre-populated app.db is included in the repository with a couple user accounts (including admin), locations, hints and images. 
 
 4. Run the application:
    ```bash

@@ -1,5 +1,6 @@
-from dotenv import load_dotenv
-load_dotenv()
+
+import eventlet
+eventlet.monkey_patch()
 
 from flask import Flask 
 from config import Config 

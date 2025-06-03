@@ -152,6 +152,7 @@
         document.getElementById('hints').value = '';
       }
     }
+    window.isAuthenticated = {{ current_user.is_authenticated|tojson }};
   </script>
 </body>
 

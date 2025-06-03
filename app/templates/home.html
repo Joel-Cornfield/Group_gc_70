@@ -101,7 +101,7 @@
     <!-- LEFT: Auto-scrolling map -->
     <div class="scrolling-map-container">
       <div class="scrolling-map">
-        <img src="{{ url_for('static', filename='images/UWA_Map.jpg') }}" alt="UWA Campus Map" class="uwa-map">
+        <img src="{{ url_for('static', filename='images/UWA_map.jpg') }}" alt="UWA Campus Map" class="uwa-map">
       </div>
     </div>
 
@@ -150,8 +150,7 @@
       const alertBox = document.getElementById('howToPlayAlert');
       alertBox.style.display = 'none';
     }
-</script>
-
+    window.isAuthenticated = {{ current_user.is_authenticated|tojson }};
   </script>
 
 </body>

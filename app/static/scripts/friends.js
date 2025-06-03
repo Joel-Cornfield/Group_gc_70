@@ -593,8 +593,10 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
 
-    // Initial load
-    loadFriends();
-    loadFriendRequests();
-    fetchInitialNotifications(); // Load initial notifications
+    // Only load friends/notifications if logged in
+    if (window.isAuthenticated) {
+        loadFriends();
+        loadFriendRequests();
+        fetchInitialNotifications();
+    }
 });

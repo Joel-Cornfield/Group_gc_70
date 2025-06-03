@@ -149,6 +149,7 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
       const gameData = {{ game_data | tojson | safe }};
+      window.isAuthenticated = {{ current_user.is_authenticated|tojson }};
     </script>
     <script src="{{ url_for('static', filename='scripts/analyticgraph.js') }}"></script>
 </body>

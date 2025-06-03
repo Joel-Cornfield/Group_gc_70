@@ -144,7 +144,9 @@
   <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
   <script src="{{ url_for('static', filename='scripts/friends.js') }}"></script>
   <script src="{{ url_for('static', filename='scripts/game.js') }}"></script>
-  
+  <script>
+    window.isAuthenticated = {{ current_user.is_authenticated|tojson }};
+  </script>
 </body>
 
 </html>

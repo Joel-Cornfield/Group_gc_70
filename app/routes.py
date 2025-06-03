@@ -9,7 +9,7 @@ from app import db
 from app.game_logic import process_guess
 from app.socket_events import send_notification_to_user
 from app.blueprints import main 
-from sqlalchemy import and_
+from sqlalchemy import and_, inspect
 
 
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'} 
@@ -27,6 +27,19 @@ def allowed_file(filename):
 """
 This file contains the route definitions for the Flask application. Almost all of these endpoints are skeletolns and are not fully implemented yet.
 """
+@main.before_first_request
+def create_tables_if_needed():
+    try:
+        inspector = inspect(db.engine)
+        existing_tables = inspector.get_table_names()
+
+        if not existing_tables:
+            db.create_all()
+            current_app.logger.info("Tables created successfully (database was empty).")
+        else:
+            current_app.logger.info("ℹTables already exist. Skipping creation.")
+    except Exception as e:
+        return jsonify({'error': {e}})
 
 # Home Page
 @main.route('/')

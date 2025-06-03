@@ -37,5 +37,9 @@ def create_app(config_class=Config):
 
     with app.app_context():
         from app import routes, models, socket_events
+        # Only create tables if the database is empty
+        inspector = db.inspect(db.engine)
+        if not inspector.get_table_names():
+            db.create_all()
 
     return app
